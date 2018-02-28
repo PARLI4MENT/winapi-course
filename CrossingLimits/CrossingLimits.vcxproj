@@ -148,6 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="FunctionCallMemoryCounter.h" />
     <ClInclude Include="MaxHandleCounter.h" />
     <ClInclude Include="MaxMemoryCounter.h" />
     <ClInclude Include="MaxPensCounter.h" />
