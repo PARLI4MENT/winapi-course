@@ -36,7 +36,7 @@ void PrintMaxMemoryAndLastError()
 	int maxMemoryBytes = allocatedBlocksCount * blockSize;
 	double maxMemoryGigabytes = maxMemoryBytes / 1024.0 / 1024.0 / 1024.0;
 	std::cout << allocatedBlocksCount << " blocks allocated, i. e. " << maxMemoryBytes << " b, " <<
-		"or " << maxMemoryGigabytes << " Gb." << std::endl; // Expected nearly 32000, i. e. 2 GB.
+		"or " << maxMemoryGigabytes << " Gb." << std::endl; // Expected nearly 32000, i. e. 2 Gb.
 
 	try {
 		PrintError();
