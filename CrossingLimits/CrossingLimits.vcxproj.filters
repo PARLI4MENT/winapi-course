@@ -30,7 +30,7 @@
     <ClInclude Include="MaxHandleCounter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MaxPensCount.h">
+    <ClInclude Include="MaxPensCounter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
