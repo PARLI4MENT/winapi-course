@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 
+// Theory: https://msdn.microsoft.com/ru-ru/library/windows/desktop/ms724485(v=vs.85).aspx.
 void PrintMaxHandlesCount()
 {
 	// See: https://msdn.microsoft.com/ru-ru/library/windows/desktop/ms724251(v=vs.85).aspx.
