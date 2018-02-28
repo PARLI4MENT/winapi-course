@@ -11,7 +11,7 @@
 // https://msdn.microsoft.com/en-us/library/windows/desktop/ms680582(v=vs.85).aspx.
 void PrintError()
 {
-	DWORD lastErrorCode = GetLastError(); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms679360(v=vs.85).aspx.
+	const DWORD lastErrorCode = GetLastError(); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms679360(v=vs.85).aspx.
 	LPTSTR lastErrorMessage = NULL;
 
 	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms679351(v=vs.85).aspx.
@@ -25,7 +25,7 @@ void PrintError()
 
 void PrintMaxMemoryAndLastError()
 {
-	SIZE_T blockSize = 64 * 1024; // In bytes.
+	const SIZE_T blockSize = 64 * 1024; // In bytes.
 	int allocatedBlocksCount = 0;
 
 	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/aa366887%28v=vs.85%29.aspx.
@@ -33,8 +33,9 @@ void PrintMaxMemoryAndLastError()
 		++allocatedBlocksCount;
 	}
 
-	int maxMemoryBytes = allocatedBlocksCount * blockSize;
-	double maxMemoryGigabytes = maxMemoryBytes / 1024.0 / 1024.0 / 1024.0;
+	const int maxMemoryBytes = allocatedBlocksCount * blockSize;
+	const double maxMemoryGigabytes = maxMemoryBytes / 1024.0 / 1024.0 / 1024.0;
+	
 	std::cout << allocatedBlocksCount << " blocks allocated, i. e. " << maxMemoryBytes << " b, " <<
 		"or " << maxMemoryGigabytes << " Gb." << std::endl; // Expected nearly 32000, i. e. 2 Gb.
 

@@ -5,19 +5,21 @@
 
 void FragmentMemory()
 {
-	SIZE_T minBlockSize = 64 * 1024; // In bytes;
+	const SIZE_T minBlockSize = 64 * 1024; // In bytes;
+
+	const std::uniform_int_distribution<int> getBlockSizeMultiplier( 50, 100 );
+	const std::uniform_int_distribution<int> getPositionDistribution( 0, minBlockSize * 32000 );
+	const std::uniform_int_distribution<int> getPageGuardFlag( 0, 1 );
 
 	std::default_random_engine randomize;
-	std::uniform_int_distribution<int> getBlockSizeMultiplier( 50, 100 );
-	std::uniform_int_distribution<int> getPositionDistribution( 0, minBlockSize * 32000 );
 
-	for ( int i = 0, j = 0; i < 500 && j < 100000; ++j ) {
-		SIZE_T blockSize = minBlockSize * getBlockSizeMultiplier( randomize );
-		LPVOID position = ( LPVOID ) getPositionDistribution( randomize );
-		LPVOID ptr = VirtualAlloc( position, blockSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE );
+	for ( int succeededCallsCount = 0, callsCount = 0; succeededCallsCount < 500 && callsCount < 100000; ++callsCount ) {
+		const SIZE_T blockSize = minBlockSize * getBlockSizeMultiplier( randomize );
+		const LPVOID position = ( LPVOID ) getPositionDistribution( randomize );
+		const DWORD protectLevel = PAGE_READWRITE | ( PAGE_GUARD * getPageGuardFlag( randomize ) );
 
-		if ( ptr != NULL ) {
-			++i;
+		if ( VirtualAlloc( position, blockSize, MEM_COMMIT | MEM_RESERVE, protectLevel ) != NULL ) {
+			++succeededCallsCount;
 		}
 	}
 }
