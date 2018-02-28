@@ -24,6 +24,9 @@
     <ClInclude Include="MaxMemoryCounter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MemoryFragmenter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
