@@ -4,8 +4,6 @@
 
 #include <iostream>
 
-#include "ErrorLogger.h"
-
 void PrintMaxMemoryAndLastError()
 {
 	const SIZE_T blockSize = 64 * 1024; // In bytes.
@@ -21,6 +19,4 @@ void PrintMaxMemoryAndLastError()
 	
 	std::cout << allocatedBlocksCount << " blocks allocated, i. e. " << maxMemoryBytes << " b, " <<
 		"or " << maxMemoryGigabytes << " Gb." << std::endl; // Expected nearly 32000, i. e. 2 Gb.
-
-	Log();
 }

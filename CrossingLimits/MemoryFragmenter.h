@@ -4,8 +4,6 @@
 
 #include <random>
 
-#include "ErrorLogger.h"
-
 void FragmentMemory()
 {
 	const SIZE_T minBlockSize = 64 * 1024; // In bytes;
@@ -25,6 +23,4 @@ void FragmentMemory()
 			++succeededCallsCount;
 		}
 	}
-
-	Log();
 }
