@@ -2,6 +2,8 @@
 
 #include <Windows.h>
 
+#include "ErrorLogger.h"
+
 // Theory: https://msdn.microsoft.com/ru-ru/library/windows/desktop/ms724485(v=vs.85).aspx.
 void PrintMaxHandlesCount()
 {
@@ -17,4 +19,6 @@ void PrintMaxHandlesCount()
 	}
 
 	std::cout << handlesCount << " handles were created, it is about 2 ** " << log2( handlesCount ) << "." <<  std::endl;
+	
+	Log();
 }

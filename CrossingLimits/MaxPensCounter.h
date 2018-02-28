@@ -2,6 +2,8 @@
 
 #include <Windows.h>
 
+#include "ErrorLogger.h"
+
 // All GDI Objets: https://msdn.microsoft.com/ru-ru/library/windows/desktop/ms724291%28v=vs.85%29.aspx. 
 void PrintMaxPensCount()
 {
@@ -14,4 +16,6 @@ void PrintMaxPensCount()
 	}
 
 	std::cout << pensCount << " pens were created." << std::endl;
+
+	Log();
 }

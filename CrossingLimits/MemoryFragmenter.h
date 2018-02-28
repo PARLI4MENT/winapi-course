@@ -1,7 +1,10 @@
 #pragma once
 
 #include <Windows.h>
+
 #include <random>
+
+#include "ErrorLogger.h"
 
 void FragmentMemory()
 {
@@ -22,4 +25,6 @@ void FragmentMemory()
 			++succeededCallsCount;
 		}
 	}
+
+	Log();
 }
