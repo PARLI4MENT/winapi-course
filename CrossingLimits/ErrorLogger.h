@@ -19,9 +19,9 @@ void PrintError()
 	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms679351(v=vs.85).aspx.
 	if ( FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		NULL, lastErrorCode, MAKELANGID( LANG_ENGLISH, SUBLANG_ENGLISH_US ), ( LPTSTR ) &lastErrorMessage, 0, NULL ) != 0 ) {
-		std::wcout << ( LPTSTR ) lastErrorMessage << std::endl;
+		std::wcout << "Logger: last error - " << ( LPTSTR ) lastErrorMessage << std::endl;
 	} else {
-		std::string errorMessage = "Can't format message for code " + std::to_string( lastErrorCode ) + ", failed with error " + std::to_string( GetLastError() ) + ".";
+		std::string errorMessage = "Logger: Can't format message for code " + std::to_string( lastErrorCode ) + ", failed with error " + std::to_string( GetLastError() ) + ".";
 		throw std::exception( errorMessage.c_str() );
 	}
 }
@@ -33,6 +33,6 @@ void Log()
 	} catch ( const std::exception& exception ) {
 		std::cout << exception.what() << std::endl;
 	} catch ( ... ) {
-		std::cout << "Can't parse error." << std::endl;
+		std::cout << "Logger: Can't parse last error." << std::endl;
 	}
 }
