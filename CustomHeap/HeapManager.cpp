@@ -94,17 +94,20 @@ void CHeapManager::Free( void* mem )
 
 void CHeapManager::Destroy()
 {
-	if ( VirtualAlloc( reservedMemoryPtr, memorySize, MEM_RESET, PAGE_NOACCESS ) != NULL ) {
+	if ( VirtualFree( reservedMemoryPtr, 0, MEM_RESET ) != NULL ) {
 		throw CVirtualAllocError( "CHeapManager::Destroy: Cannot reset memory." );
 	}
 
-	for ( auto block : allocatedBlocks ) {
-		std::cerr << block.GetPtr() << " " << block.GetSize() << std::endl;
-	}
+	//for ( auto block : allocatedBlocks ) {
+	//	std::cerr << block.GetPtr() << " " << block.GetSize() << std::endl;
+	//}
 }
 
 int CHeapManager::roundUpToNBytes( int bytes, int multiplicity ) const
 {
+	if ( bytes == 0 ) {
+		return multiplicity;
+	}
 	if ( bytes % multiplicity == 0 ) {
 		return bytes;
 	}
@@ -151,6 +154,9 @@ CBlock CHeapManager::takeFreeBlock( int size )
 CBlock CHeapManager::getFreeBlock( int size ) const
 {
 	auto freeBlockIterator = freeBlocksSetsComparedBySize.lower_bound( CBlock( size, nullptr ) );
+	if ( freeBlockIterator == freeBlocksSetsComparedBySize.end() ) {
+		throw CMemoryLimitExceeded( "CHeapManager::getFreeBlock: Memory limit exceeded." );
+	}
 	return *freeBlockIterator;
 }
 
@@ -251,12 +257,15 @@ void CHeapManager::downPages( void* ptr, int size )
 	if ( pages[leftPageIndex] != 0 ) {
 		freeingPtr = offsetPtr( freeingPtr, pageSize );
 	}
+
 	if ( pages[leftPageIndex] != 0 ) {
 		freeingSize -= pageSize;
 	}
 
+
 	if ( VirtualFree( freeingPtr, freeingSize, MEM_DECOMMIT ) != TRUE ) {
-		throw CVirtualFreeError("CHeapManager::downPages: Cannot free memory.");
+		//std::terminate();
+		//throw CVirtualFreeError( "CHeapManager::downPages: Cannot free memory." );
 	}
 }
 

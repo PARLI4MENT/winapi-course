@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "Exception.h"
 
 CException::CException( std::string _message ) :
@@ -7,9 +5,9 @@ CException::CException( std::string _message ) :
 {
 }
 
-void CException::PrintMessage()
+const char* CException::what() const throw( )
 {
-	std::cerr << message << std::endl;
+	return message.c_str();
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -29,6 +27,13 @@ CVirtualAllocError::CVirtualAllocError( std::string _message ) :
 //----------------------------------------------------------------------------------------------------------------------
 
 CVirtualFreeError::CVirtualFreeError( std::string _message ) :
+	CException( _message )
+{
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+CMemoryLimitExceeded::CMemoryLimitExceeded( std::string _message ) :
 	CException( _message )
 {
 }

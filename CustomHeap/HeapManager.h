@@ -73,5 +73,4 @@ private:
 	void updateSets( CBlock oldBlock, CBlock newBlock );
 	void eraseBlock( CBlock block );
 	void insertBlock( CBlock block );
-	void uniteBlocks( const std::set<CBlock, CBlockComparatorBySize>::iterator& iterator );
 };
