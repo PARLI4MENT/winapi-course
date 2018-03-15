@@ -66,6 +66,7 @@ private:
 	int getCommitingSize( int size, void* ptr ) const;
 	int getPageOffset( void* ptr ) const;
 	int getIntByPtr( void* ptr ) const;
+	void commitBlocks( void* ptr, int size );
 	void upPages( void* ptr, int size );
 	int getPageIndex( void* ptr ) const;
 	void* offsetPtr( void* ptr, int offset ) const;

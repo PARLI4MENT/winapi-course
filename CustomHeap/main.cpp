@@ -9,76 +9,29 @@
 #include "Struct.h"
 
 const int minClass = 0;
-const int maxClass = 3;
-const int sampleCount = 50;
+const int maxClass = 4;
+const int sampleCount = 100;
 const int operationCount = 10000;
 
 std::vector<int> types;
-
 std::vector<std::pair<int, int>> operations;
 
 CClass* classes[sampleCount];
 CStruct* structs[sampleCount];
 
-void testClass()
+template<class CBase, class CDerived>
+void doOperation( CBase* data[], int operation, int index )
 {
-	for ( int i = 0; i < operationCount; ++i ) {
-		int index = operations[i].first;
-		int operation = operations[i].second;
-
-		switch ( types[index] ) {
-			case 0:
-				if ( operation == 1 && classes[index] == nullptr ) {
-					classes[index] = new CClassXS;
-				} else if ( operation == 0 && classes[index] != nullptr ) {
-					delete classes[index];
-					classes[index] = nullptr;
-				}
-				break;
-
-			case 1:
-				if ( operation == 1 && classes[index] == nullptr ) {
-					classes[index] = new CClassS;
-				} else if ( operation == 0 && classes[index] != nullptr ) {
-					delete classes[index];
-					classes[index] = nullptr;
-				}
-				break;
-
-			case 2:
-				if ( operation == 1 && classes[index] == nullptr ) {
-					classes[index] = new CClassM;
-				} else if ( operation == 0 && classes[index] != nullptr ) {
-					delete classes[index];
-					classes[index] = nullptr;
-				}
-				break;
-
-			case 3:
-				if ( operation == 1 && classes[index] == nullptr ) {
-					classes[index] = new CClassL;
-				} else if ( operation == 0 && classes[index] != nullptr ) {
-					delete classes[index];
-					classes[index] = nullptr;
-				}
-				break;
-
-			case 4:
-				if ( operation == 1 && classes[index] == nullptr ) {
-					classes[index] = new CClassXL;
-				} else if ( operation == 0 && classes[index] != nullptr ) {
-					delete classes[index];
-					classes[index] = nullptr;
-				}
-				break;
-
-			default:
-				break;
-		}
+	if ( operation >= 1 && data[index] == nullptr ) {
+		data[index] = new CDerived;
+	} else if ( operation == 0 && data[index] != nullptr ) {
+		delete data[index];
+		data[index] = nullptr;
 	}
 }
 
-void testStruct()
+template<class CBase, class CDerived0, class CDerived1, class CDerived2, class CDerived3, class CDerived4>
+void test( CBase* data[] )
 {
 	for ( int i = 0; i < operationCount; ++i ) {
 		int index = operations[i].first;
@@ -86,50 +39,20 @@ void testStruct()
 
 		switch ( types[index] ) {
 			case 0:
-				if ( operation == 1 && structs[index] == nullptr ) {
-					structs[index] = new CStructXS;
-				} else if ( operation == 0 && structs[index] != nullptr ) {
-					delete structs[index];
-					structs[index] = nullptr;
-				}
+				doOperation<CBase, CDerived0>( data, operation, index );
 				break;
-
 			case 1:
-				if ( operation == 1 && structs[index] == nullptr ) {
-					structs[index] = new CStructS;
-				} else if ( operation == 0 && structs[index] != nullptr ) {
-					delete structs[index];
-					structs[index] = nullptr;
-				}
+				doOperation<CBase, CDerived1>( data, operation, index );
 				break;
-
 			case 2:
-				if ( operation == 1 && structs[index] == nullptr ) {
-					structs[index] = new CStructM;
-				} else if ( operation == 0 && structs[index] != nullptr ) {
-					delete structs[index];
-					structs[index] = nullptr;
-				}
+				doOperation<CBase, CDerived2>( data, operation, index );
 				break;
-
 			case 3:
-				if ( operation == 1 && structs[index] == nullptr ) {
-					structs[index] = new CStructL;
-				} else if ( operation == 0 && structs[index] != nullptr ) {
-					delete structs[index];
-					structs[index] = nullptr;
-				}
+				doOperation<CBase, CDerived3>( data, operation, index );
 				break;
-
 			case 4:
-				if ( operation == 1 && structs[index] == nullptr ) {
-					structs[index] = new CStructXL;
-				} else if ( operation == 0 && structs[index] != nullptr ) {
-					delete structs[index];
-					structs[index] = nullptr;
-				}
+				doOperation<CBase, CDerived4>( data, operation, index );
 				break;
-
 			default:
 				break;
 		}
@@ -139,7 +62,7 @@ void testStruct()
 int main()
 {
 	std::uniform_int_distribution<int> getClass( minClass, maxClass );
-	std::uniform_int_distribution<int> getOperation( 0, 1 );
+	std::uniform_int_distribution<int> getOperation( 0, 2 );
 	std::uniform_int_distribution<int> getIndex( 0, sampleCount - 1 );
 	std::default_random_engine randomize;
 
@@ -159,21 +82,24 @@ int main()
 	}
 
 	try {
-		initHeapManager( 20000000 );
+		initHeapManager( 200000 );
+
 		auto start = std::chrono::high_resolution_clock::now();
-		testClass();
+		test<CClass, CClassXS, CClassS, CClassM, CClassL, CClassXL>( classes );
 		auto middle = std::chrono::high_resolution_clock::now();
-		testStruct();
+		test<CStruct, CStructXS, CStructS, CStructM, CStructL, CStructXL>( structs );
 		auto finish = std::chrono::high_resolution_clock::now();
+
 		__int64 dur1 = ( middle - start ).count();
 		__int64 dur2 = ( finish - middle ).count();
+
 		std::cout << dur1 << " " << dur2 << " " << static_cast<double>( dur1 ) / dur2 << std::endl;
+
+		int enterSomethingToCloseProcess = 0;
+		std::cin >> enterSomethingToCloseProcess;
 		clearHeapManager();
 	} catch ( const std::exception& exception ) {
 		std::cerr << exception.what() << std::endl;
 	}
-
-	int enterSomethingToCloseProcess = 0;
-	std::cin >> enterSomethingToCloseProcess;
 	return 0;
 }

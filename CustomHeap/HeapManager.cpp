@@ -51,7 +51,7 @@ void CHeapManager::Create( int minSize, int maxSize )
 		throw CIncorrectSize( "CHeapManager::Create: Either size is negative or minimum size greater than maximum size." );
 	}
 
-	memorySize = roundUpToNBytes( 2 * maxSize, pageSize );
+	memorySize = roundUpToNBytes( maxSize, pageSize );
 
 	reserveMemory();
 	commitMemory( roundUpToNBytes( minSize, pageSize ) );
@@ -70,22 +70,22 @@ void* CHeapManager::Alloc( int size )
 	CBlock freeBlock = takeFreeBlock( actualSize );
 	void* ptr = freeBlock.GetPtr();
 
-	int commitingSize = getCommitingSize( actualSize, ptr );
-	if ( VirtualAlloc( ptr, commitingSize, MEM_COMMIT, PAGE_READWRITE ) == nullptr ) {
-		throw CVirtualAllocError( "CHeapManager::Alloc: Cannot commit memory." );
-	}
-
 	allocatedBlocks.insert( CBlock( actualSize, ptr ) );
 	upPages( ptr, actualSize );
+	commitBlocks( ptr, size );
 
 	*static_cast<int*>( ptr ) = actualSize; // Write block size to the first bytes.
-	return offsetPtr( ptr, sizeof( int ) ); // Retunr ptr considered writing above.
+	//std::cout << ptr << " add " << actualSize << std::endl;
+	return offsetPtr( ptr, sizeof( int ) ); // Return ptr considered writing above.
 }
 
 void CHeapManager::Free( void* mem )
 {
 	void* ptr = offsetPtr( mem, -static_cast<int>( sizeof( int ) ) );
+	//std::cout << ptr << " remove " << " " << getIntByPtr( ptr ) << " " << getPageIndex( ptr ) << " " << pages[getPageIndex( ptr )] << " ";
+	int* tptr = static_cast<int*>( ptr );
 	int size = *static_cast<int*>( ptr );
+	//std::cout << size << std::endl;
 
 	allocatedBlocks.erase( CBlock( size, ptr ) );
 	downPages( ptr, size );
@@ -98,9 +98,9 @@ void CHeapManager::Destroy()
 		throw CVirtualAllocError( "CHeapManager::Destroy: Cannot reset memory." );
 	}
 
-	//for ( auto block : allocatedBlocks ) {
-	//	std::cerr << block.GetPtr() << " " << block.GetSize() << std::endl;
-	//}
+	for ( auto block : allocatedBlocks ) {
+		std::cerr << block.GetPtr() << " " << block.GetSize() << std::endl;
+	}
 }
 
 int CHeapManager::roundUpToNBytes( int bytes, int multiplicity ) const
@@ -139,7 +139,7 @@ void CHeapManager::commitMemory( int size ) const
 	if ( commitedMemoryPtr == nullptr ) {
 		throw CVirtualAllocError( "CHeapManager::commitMemory: Cannot commit memory." );
 	} else if ( commitedMemoryPtr != reservedMemoryPtr ) {
-		throw CVirtualAllocError( "CHeapManager::commitMemory: The pointers to commited and reserved memory are different." );
+		throw CVirtualAllocError( "CHeapManager::commitMemory: The postd::size_ters to commited and reserved memory are different." );
 	}
 }
 
@@ -185,7 +185,7 @@ int CHeapManager::getPageOffset( void* ptr ) const
 	return  getIntByPtr( ptr ) % pageSize;
 }
 
-int  CHeapManager::getIntByPtr( void* ptr ) const
+int CHeapManager::getIntByPtr( void* ptr ) const
 {
 	return reinterpret_cast<std::uintptr_t>( ptr );
 }
@@ -199,16 +199,25 @@ void CHeapManager::upPages( void* ptr, int size )
 	int leftPageOffset = getPageOffset( leftPtr );
 	int rightPageOffset = getPageOffset( rightPtr );
 
+	std::cout << "add " << size << std::endl;
+
+
 	if ( leftPageIndex == rightPageIndex ) {
-		pages[leftPageIndex] += rightPageOffset - leftPageOffset + 1;
+		pages[leftPageIndex] += rightPageOffset - leftPageOffset + minBlockSize;
+		std::cout << "+" << rightPageOffset - leftPageOffset + minBlockSize << std::endl;
 		return;
 	}
 
-	pages[leftPageIndex] += maxBlocksPerPage - leftPageOffset + 1;
-	for ( int i = leftPageIndex + 1; i <= rightPageOffset - 1; ++i ) {
-		pages[i] = maxBlocksPerPage;
+	pages[leftPageIndex] += pageSize - leftPageOffset;
+	std::cout << "+" << pageSize - leftPageOffset << std::endl;
+	for ( int i = leftPageIndex + 1; i <= rightPageIndex - 1; ++i ) {
+		pages[i] = pageSize;
+		std::cout << "+" << pageSize << std::endl;
 	}
-	pages[leftPageIndex] += rightPageOffset;
+	std::cout << "+" << rightPageOffset + minBlockSize << std::endl;
+	pages[rightPageIndex] += rightPageOffset + minBlockSize;
+
+
 }
 
 int  CHeapManager::getPageIndex( void* ptr ) const
@@ -232,40 +241,61 @@ void CHeapManager::downPages( void* ptr, int size )
 	int leftPageOffset = getPageOffset( leftPtr );
 	int rightPageOffset = getPageOffset( rightPtr );
 
+	std::cout << "        remove " << size << std::endl;
+
 	if ( leftPageIndex == rightPageIndex ) {
-		pages[leftPageIndex] -= rightPageOffset - leftPageOffset + 1;
+		pages[leftPageIndex] -= rightPageOffset - leftPageOffset + minBlockSize;
+		std::cout << "        -" << rightPageOffset - leftPageOffset + minBlockSize << std::endl;
 
 		if ( pages[leftPageIndex] == 0 ) {
+			void* freeingPtr = offsetPtr( ptr, -leftPageOffset );
 			// See: https://msdn.microsoft.com/en-us/library/windows/desktop/aa366892(v=vs.85).aspx.
 			if ( VirtualFree( leftPtr, pageSize, MEM_DECOMMIT ) != TRUE ) {
-				CVirtualFreeError( "CHeapManager::downPages: Cannot free memory." );
+				throw CVirtualFreeError( "CHeapManager::downPages: Cannot free memory." );
 			}
 		}
 		return;
 	}
 
-	pages[leftPageIndex] -= maxBlocksPerPage - leftPageOffset + 1;
-	for ( int i = leftPageIndex + 1; i <= rightPageOffset - 1; ++i ) {
+	std::cout << "        -" << pageSize - leftPageOffset << std::endl;
+	pages[leftPageIndex] -= pageSize - leftPageOffset;
+	for ( int i = leftPageIndex + 1; i <= rightPageIndex - 1; ++i ) {
+		std::cout << "        -" << pageSize << std::endl;
 		pages[i] = 0;
 	}
-	pages[leftPageIndex] -= rightPageOffset;
+	std::cout << "        -" << rightPageOffset + minBlockSize << std::endl;
+	pages[rightPageIndex] -= rightPageOffset + minBlockSize;
 
 	// Use rounding magic for simple calculations.
-	void* freeingPtr = ptr;
-	int freeingSize = size;
+	void* freeingPtr = offsetPtr( ptr, -leftPageOffset );
+	int freeingSize = size + leftPageOffset + (pageSize - rightPageOffset + minBlockSize);
 
 	if ( pages[leftPageIndex] != 0 ) {
 		freeingPtr = offsetPtr( freeingPtr, pageSize );
-	}
-
-	if ( pages[leftPageIndex] != 0 ) {
 		freeingSize -= pageSize;
 	}
 
+	if ( pages[rightPageIndex] != 0 ) {
+		freeingSize -= pageSize;
+	}
 
 	if ( VirtualFree( freeingPtr, freeingSize, MEM_DECOMMIT ) != TRUE ) {
-		//std::terminate();
-		//throw CVirtualFreeError( "CHeapManager::downPages: Cannot free memory." );
+		throw CVirtualFreeError( "CHeapManager::downPages: Cannot free memory." );
+	}
+}
+
+void CHeapManager::commitBlocks( void* ptr, int size )
+{
+	void* leftPtr = ptr;
+	void* rightPtr = offsetPtr( ptr, size - minBlockSize );
+	int leftPageOffset = getPageOffset( leftPtr );
+	int rightPageOffset = getPageOffset( rightPtr );
+
+	void* commitingPtr = offsetPtr( ptr, -leftPageOffset );
+	int commitingSize = size + leftPageOffset + ( pageSize - rightPageOffset + minBlockSize );
+
+	if ( VirtualAlloc( commitingPtr, commitingSize, MEM_COMMIT, PAGE_READWRITE ) == nullptr ) {
+		throw CVirtualAllocError( "CHeapManager::commitBlocks: Cannot commit memory." );
 	}
 }
 

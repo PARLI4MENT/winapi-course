@@ -42,19 +42,3 @@ struct CStructXL : public CStruct {
 private:
 	CStructL data[16];
 };
-
-//----------------------------------------------------------------------------------------------------------------------
-
-struct CStructXXL : public CStruct {
-
-private:
-	CStructXL data[32];
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
-struct CStructXXXL : public CStruct {
-
-private:
-	CStructXXL data[64];
-};

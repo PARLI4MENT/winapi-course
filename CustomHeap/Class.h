@@ -53,19 +53,3 @@ class CClassXL : public CClass {
 private:
 	CClassL data[16];
 };
-
-//----------------------------------------------------------------------------------------------------------------------
-
-class CClassXXL : public CClass {
-
-private:
-	CClassXL data[32];
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-
-class CClassXXXL : public CClass {
-
-private:
-	CClassXXL data[64];
-};
