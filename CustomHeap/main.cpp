@@ -8,16 +8,16 @@
 #include "Class.h"
 #include "Struct.h"
 
-const int minClass = 0;
-const int maxClass = 4;
-const int sampleCount = 100;
-const int operationCount = 10000;
+const int MinClass = 0;
+const int MaxClass = 4;
+const int SampleCount = 100;
+const int OperationCount = 10000;
 
 std::vector<int> types;
 std::vector<std::pair<int, int>> operations;
 
-CClass* classes[sampleCount];
-CStruct* structs[sampleCount];
+CClass* classes[SampleCount];
+CStruct* structs[SampleCount];
 
 template<class CBase, class CDerived>
 void doOperation( CBase* data[], int operation, int index )
@@ -33,7 +33,7 @@ void doOperation( CBase* data[], int operation, int index )
 template<class CBase, class CDerived0, class CDerived1, class CDerived2, class CDerived3, class CDerived4>
 void test( CBase* data[] )
 {
-	for ( int i = 0; i < operationCount; ++i ) {
+	for ( int i = 0; i < OperationCount; ++i ) {
 		int index = operations[i].first;
 		int operation = operations[i].second;
 
@@ -61,18 +61,18 @@ void test( CBase* data[] )
 
 int main()
 {
-	std::uniform_int_distribution<int> getClass( minClass, maxClass );
+	std::uniform_int_distribution<int> getClass( MinClass, MaxClass );
 	std::uniform_int_distribution<int> getOperation( 0, 2 );
-	std::uniform_int_distribution<int> getIndex( 0, sampleCount - 1 );
+	std::uniform_int_distribution<int> getIndex( 0, SampleCount - 1 );
 	std::default_random_engine randomize;
 
-	for ( int i = 0; i < sampleCount; ++i ) {
+	for ( int i = 0; i < SampleCount; ++i ) {
 		types.push_back( getClass( randomize ) );
 	}
-	for ( int i = 0; i < operationCount; ++i ) {
+	for ( int i = 0; i < OperationCount; ++i ) {
 		operations.push_back( std::make_pair<int, int>( getIndex( randomize ), getOperation( randomize ) ) );
 	}
-	for ( int i = 0; i < sampleCount; ++i ) {
+	for ( int i = 0; i < SampleCount; ++i ) {
 		classes[i] = nullptr;
 		structs[i] = nullptr;
 	}
@@ -82,7 +82,7 @@ int main()
 	}
 
 	try {
-		initHeapManager( 200000 );
+		initHeapManager( 200000000 );
 
 		auto start = std::chrono::high_resolution_clock::now();
 		test<CClass, CClassXS, CClassS, CClassM, CClassL, CClassXL>( classes );
