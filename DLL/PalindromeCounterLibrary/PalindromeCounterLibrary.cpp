@@ -1,8 +1,4 @@
-#include <Windows.h>
-
-#define PALINDROMELIBRARYAPI extern "C" __declspec(dllexport)
-
-#include "PalindromeLibrary.h"
+#include "PalindromeCounterLibrary.h"
 
 #include <iterator>
 #include <sstream>
@@ -11,8 +7,8 @@
 
 std::vector<std::wstring> FindWords( const wchar_t* text )
 {
-	std::wstringstream string{ text };
-	return std::vector<std::wstring>{std::istream_iterator<std::wstring, wchar_t>{string}, std::istream_iterator<std::wstring, wchar_t>{}};
+	std::wistringstream stream{ text };
+	return std::vector<std::wstring>{std::istream_iterator<std::wstring, wchar_t>{stream}, std::istream_iterator<std::wstring, wchar_t>{}};
 }
 
 bool IsPalindrome( const std::wstring& word )
