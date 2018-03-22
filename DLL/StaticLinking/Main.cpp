@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 
-#pragma comment( lib, "PalindromeCounterLibraryStatic.lib" )
+#include "PalindromeCounterLibraryStatic.h"
 
 std::wstring GetPath()
 {
