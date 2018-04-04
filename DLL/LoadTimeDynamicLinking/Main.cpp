@@ -11,7 +11,7 @@ std::wstring GetPath()
 	int argumentsCount;
 	LPWSTR *arguments = CommandLineToArgvW( GetCommandLineW(), &argumentsCount );
 
-	if ( arguments == 0 ) {
+	if ( arguments == nullptr ) {
 		// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms645505(v=vs.85).aspx.
 		MessageBoxW( 0, L"Unable to parse command line.", L"Error", MB_OK );
 		std::terminate();
