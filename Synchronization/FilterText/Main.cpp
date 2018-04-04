@@ -16,15 +16,23 @@
 
 const int ProcessesCount = 4;
 
-std::vector<std::vector<std::string>> SplitWordsIntoParts( const std::vector<std::string>& words, const int partsCount )
+std::string Join( const std::vector<std::string>& strings )
+{
+	std::ostringstream output{};
+	std::ostream_iterator<std::string> iter( output, " " );
+	std::copy( strings.begin(), strings.end(), iter );
+	return output.str();
+}
+
+std::vector<std::string> SplitWordsIntoParts( const std::vector<std::string>& words, const int partsCount )
 {
 	const int wordsCount = words.size();
-	std::vector<std::vector<std::string>> parts;
+	std::vector<std::string> parts;
 
 	for( int i = 0; i < partsCount; ++i ) {
 		auto start = words.begin() + (i * wordsCount) / partsCount;
 		auto end = words.begin() + ( ( i + 1 ) * wordsCount ) / partsCount;
-		parts.push_back( std::vector<std::string>{ start, end } );
+		parts.push_back( Join( std::vector<std::string>{ start, end } ) );
 	}
 
 	return parts;
@@ -68,22 +76,52 @@ int main( int argc, char** argv )
 	auto words = FindWords( text );
 	auto parts = SplitWordsIntoParts( words, ProcessesCount );
 
-	STARTUPINFO startupInfo = { sizeof( startupInfo ) };
-	PROCESS_INFORMATION processInfo[ProcessesCount];
+	STARTUPINFO startupInfo = { sizeof( startupInfo ) }; // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms686331(v=vs.85).aspx.
+	PROCESS_INFORMATION processInfo[ProcessesCount]; // See https://msdn.microsoft.com/en-us/library/windows/desktop/ms684873(v=vs.85).aspx.
 
 	for( int i = 0; i < ProcessesCount; ++i ) {
 		std::string command = "Worker.exe ../forbidden-words.txt";
 
+		// See https://msdn.microsoft.com/en-us/library/windows/desktop/ms682425(v=vs.85).aspx.
 		BOOL isCreatingSussessful = CreateProcess( NULL, const_cast<LPSTR>( command.c_str() ), NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &(processInfo[i]));
 		if( !isCreatingSussessful ) {
-			std::runtime_error( "Cannot create process." );
+			throw std::runtime_error( "Cannot create process." );
 		}
 
 		DWORD processId = processInfo[i].dwProcessId;
 		std::string fileName = "file" + std::to_string( processId ) + ".txt";
 
-		//HANDLE crfl = CreateFile( fileName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, 
+		// See https://msdn.microsoft.com/en-us/library/windows/desktop/aa366537(v=vs.85).aspx.
+		HANDLE mapping = CreateFileMapping( INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, /*TODO*/ 100500, fileName.c_str() );
+		if( mapping == NULL ) {
+			throw std::runtime_error( "Cannot create file mapping." );
+		}
+		if( GetLastError() == ERROR_ALREADY_EXISTS ) {
+			CloseHandle( mapping );
+			throw std::runtime_error( "The file already exists." );
+		}
 
+		// See: https://msdn.microsoft.com/en-us/library/windows/desktop/aa366761(v=vs.85).aspx.
+		PVOID view = MapViewOfFile( mapping, FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, 0 );
+		if( view == NULL ) {
+			CloseHandle( mapping );
+			throw std::runtime_error( "Cannot map view of filed." );
+		}
+
+		// See: https://msdn.microsoft.com/en-us/library/windows/desktop/aa366801.
+		__try {
+			*static_cast<char**>( view ) = const_cast<char*>( parts[i].c_str() );
+		} __except( GetExceptionCode() == EXCEPTION_IN_PAGE_ERROR ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH ) {
+			UnmapViewOfFile( view );
+			CloseHandle( mapping );
+			throw std::runtime_error( "Failed to write to the view." );
+		}
+		
+		UnmapViewOfFile( view ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/aa366882(v=vs.85).aspx.
+		CloseHandle( mapping ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms724211(v=vs.85).aspx.
+
+		// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms682396(v=vs.85).aspx.
+		//HANDLE event = CreateEvent();
 	}
 
 	return 0;
