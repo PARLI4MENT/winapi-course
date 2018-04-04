@@ -11,7 +11,7 @@
 const int MinClass = 0;
 const int MaxClass = 4;
 const int SampleCount = 100;
-const int OperationCount = 10000;
+const int OperationCount = 100000;
 
 std::vector<int> types;
 std::vector<std::pair<int, int>> operations;
