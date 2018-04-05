@@ -29,7 +29,10 @@
     <ClInclude Include="PutToFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ResourcesHandler.h">
+    <ClInclude Include="ResourceManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Join.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

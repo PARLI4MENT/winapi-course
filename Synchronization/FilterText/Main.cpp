@@ -8,19 +8,12 @@
 #include <string>
 #include <vector>
 
-#include "ResourcesHandler.h"
+#include "ResourceManager.h"
 
 #include "FindWords.h"
 #include "GetFileContent.h"
+#include "Join.h"
 #include "PutToFile.h"
-
-std::string Join( const std::vector<std::string>& strings )
-{
-	std::ostringstream output{};
-	std::ostream_iterator<std::string> iter( output, " " );
-	std::copy( strings.begin(), strings.end(), iter );
-	return output.str();
-}
 
 std::vector<std::string> SplitWordsIntoParts( const std::vector<std::string>& words, const int partsCount )
 {
@@ -36,13 +29,13 @@ std::vector<std::string> SplitWordsIntoParts( const std::vector<std::string>& wo
 	return parts;
 }
 
-CResourcesHandler ResourceHandler;
+CResourceManager ResourceManager;
 
 void TryCreateProcess( const int i, const std::string& forbiddenWords )
 {
 	std::string command = "..\\Debug\\Worker.exe";
 	// See https://msdn.microsoft.com/en-us/library/windows/desktop/ms682425(v=vs.85).aspx.
-	BOOL isCreatingSussessful = CreateProcess( command.c_str(), const_cast<LPSTR>( forbiddenWords.c_str() ), NULL, NULL, FALSE, 0, NULL, NULL, &ResourceHandler.StartupInfo, &( ResourceHandler.ProcessInfo[i] ) );
+	BOOL isCreatingSussessful = CreateProcess( command.c_str(), const_cast<LPSTR>( forbiddenWords.c_str() ), NULL, NULL, FALSE, 0, NULL, NULL, &ResourceManager.StartupInfo, &( ResourceManager.ProcessInfo[i] ) );
 	if( !isCreatingSussessful ) {
 		throw std::runtime_error( "Cannot create process." );
 	}
@@ -50,11 +43,11 @@ void TryCreateProcess( const int i, const std::string& forbiddenWords )
 
 void TryCreateMapping( const int i )
 {
-	DWORD processId = ResourceHandler.ProcessInfo[i].dwProcessId;
+	DWORD processId = ResourceManager.ProcessInfo[i].dwProcessId;
 	std::string fileName = "file" + std::to_string( processId ) + ".txt";
 	// See https://msdn.microsoft.com/en-us/library/windows/desktop/aa366537(v=vs.85).aspx.
-	ResourceHandler.Mapping[i] = CreateFileMapping( INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, /*TODO*/ 100500, fileName.c_str() );
-	if( ResourceHandler.Mapping[i] == NULL ) {
+	ResourceManager.Mapping[i] = CreateFileMapping( INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, /*TODO*/ 100500, fileName.c_str() );
+	if( ResourceManager.Mapping[i] == NULL ) {
 		throw std::runtime_error( "Cannot create file mapping." );
 	}
 	if( GetLastError() == ERROR_ALREADY_EXISTS ) {
@@ -65,8 +58,8 @@ void TryCreateMapping( const int i )
 void TryMapViewOfFile( const int i )
 {
 	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/aa366761(v=vs.85).aspx.
-	ResourceHandler.View[i] = MapViewOfFile( ResourceHandler.Mapping[i], FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, 0 );
-	if( ResourceHandler.View[i] == NULL ) {
+	ResourceManager.View[i] = MapViewOfFile( ResourceManager.Mapping[i], FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, 0 );
+	if( ResourceManager.View[i] == NULL ) {
 		throw std::runtime_error( "Cannot map view of fied." );
 	}
 }
@@ -74,16 +67,16 @@ void TryMapViewOfFile( const int i )
 void WriteToViewOfFile( const int i, const char* text )
 {
 	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/aa366801.
-	*static_cast< char** >( ResourceHandler.View[i] ) = const_cast<char*>( text );
+	*static_cast< char** >( ResourceManager.View[i] ) = const_cast<char*>( text );
 }
 
 void TryCreateTextIsAppearedEvent( const int i )
 {
-	DWORD processId = ResourceHandler.ProcessInfo[i].dwProcessId;
+	DWORD processId = ResourceManager.ProcessInfo[i].dwProcessId;
 	std::string eventName = "TextIsAppeared" + std::to_string( processId );
 	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms682396(v=vs.85).aspx.
-	ResourceHandler.AppearedEvents[i] = CreateEvent( NULL, FALSE, TRUE, eventName.c_str() );
-	if( ResourceHandler.AppearedEvents[i] == NULL ) {
+	ResourceManager.AppearedEvents[i] = CreateEvent( NULL, FALSE, TRUE, eventName.c_str() );
+	if( ResourceManager.AppearedEvents[i] == NULL ) {
 		throw std::runtime_error( "Cannot create event." );
 	}
 	if( GetLastError() == ERROR_ALREADY_EXISTS ) {
@@ -93,10 +86,10 @@ void TryCreateTextIsAppearedEvent( const int i )
 
 void TryCreateTextIsUpdatedEvent( const int i )
 {
-	DWORD processId = ResourceHandler.ProcessInfo[i].dwProcessId;
+	DWORD processId = ResourceManager.ProcessInfo[i].dwProcessId;
 	std::string eventName = "TextIsUpdated" + std::to_string( processId );
-	ResourceHandler.UpdatedEvents[i] = CreateEvent( NULL, FALSE, FALSE, eventName.c_str() );
-	if( ResourceHandler.UpdatedEvents[i] == NULL ) {
+	ResourceManager.UpdatedEvents[i] = CreateEvent( NULL, FALSE, FALSE, eventName.c_str() );
+	if( ResourceManager.UpdatedEvents[i] == NULL ) {
 		throw std::runtime_error( "Cannot create event." );
 	}
 	if( GetLastError() == ERROR_ALREADY_EXISTS ) {
@@ -106,16 +99,11 @@ void TryCreateTextIsUpdatedEvent( const int i )
 
 void ReadFromViewOfFile( const int i, std::string& text )
 {
-	text = std::string{ *static_cast<char**>( ResourceHandler.View[i] ) };
+	text = std::string{ *static_cast<char**>( ResourceManager.View[i] ) };
 }
 
 int main( int argc, char** argv )
 {
-	std::cout << argc << std::endl;
-	for( int i = 0; i < argc; ++i ) {
-		std::cout << argv[i] << std::endl;
-	}
-
 	if( argc != 4 ) {
 		throw std::runtime_error( "Invalid arguments count." );
 	}
@@ -133,11 +121,11 @@ int main( int argc, char** argv )
 			TryCreateMapping( i );
 			TryMapViewOfFile( i );
 			WriteToViewOfFile( i, parts[i].c_str() );
-			UnmapViewOfFile( ResourceHandler.View[i] ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/aa366882(v=vs.85).aspx.
+			UnmapViewOfFile( ResourceManager.View[i] ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/aa366882(v=vs.85).aspx.
 			TryCreateTextIsAppearedEvent( i );
 			TryCreateTextIsUpdatedEvent( i );
 		}
-		WaitForMultipleObjects( ProcessesCount, ResourceHandler.UpdatedEvents, TRUE, INFINITE ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms687025(v=vs.85).aspx.
+		WaitForMultipleObjects( ProcessesCount, ResourceManager.UpdatedEvents, TRUE, INFINITE ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms687025(v=vs.85).aspx.
 		for( int i = 0; i < ProcessesCount; ++i ) {
 			TryMapViewOfFile( i );
 			ReadFromViewOfFile( i, parts[i] );

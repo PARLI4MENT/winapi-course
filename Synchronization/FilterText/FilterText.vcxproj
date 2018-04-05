@@ -124,8 +124,9 @@
   <ItemGroup>
     <ClInclude Include="FindWords.h" />
     <ClInclude Include="GetFileContent.h" />
+    <ClInclude Include="Join.h" />
     <ClInclude Include="PutToFile.h" />
-    <ClInclude Include="ResourcesHandler.h" />
+    <ClInclude Include="ResourceManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

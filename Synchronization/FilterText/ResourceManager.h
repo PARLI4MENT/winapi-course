@@ -4,7 +4,7 @@
 
 const int ProcessesCount = 4;
 
-class CResourcesHandler {
+class CResourceManager {
 public:
 	STARTUPINFO StartupInfo{ sizeof( STARTUPINFO ) }; // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms686331(v=vs.85).aspx.
 	PROCESS_INFORMATION ProcessInfo[ProcessesCount]; // See https://msdn.microsoft.com/en-us/library/windows/desktop/ms684873(v=vs.85).aspx.
@@ -13,7 +13,7 @@ public:
 	HANDLE AppearedEvents[ProcessesCount];
 	HANDLE UpdatedEvents[ProcessesCount];
 
-	~CResourcesHandler()
+	~CResourceManager()
 	{
 		for( int i = 0; i < ProcessesCount; ++i ) {
 			if( ProcessInfo[i].hThread != NULL ) {
