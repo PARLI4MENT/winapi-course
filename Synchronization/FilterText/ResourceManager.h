@@ -10,8 +10,8 @@ public:
 	PROCESS_INFORMATION ProcessInfo[ProcessesCount]; // See https://msdn.microsoft.com/en-us/library/windows/desktop/ms684873(v=vs.85).aspx.
 	HANDLE Mapping[ProcessesCount];
 	PVOID View[ProcessesCount];
-	HANDLE AppearedEvents[ProcessesCount];
-	HANDLE UpdatedEvents[ProcessesCount];
+	HANDLE TextIsAppearedEvents[ProcessesCount];
+	HANDLE TextIsUpdatedEvents[ProcessesCount];
 
 	~CResourceManager()
 	{
@@ -28,11 +28,11 @@ public:
 			if( View[i] != NULL ) {
 				UnmapViewOfFile( View[i] );
 			}
-			if( AppearedEvents[i] != NULL ) {
-				CloseHandle( AppearedEvents[i] );
+			if( TextIsAppearedEvents[i] != NULL ) {
+				CloseHandle( TextIsAppearedEvents[i] );
 			}
-			if( UpdatedEvents[i] != NULL ) {
-				CloseHandle( AppearedEvents[i] );
+			if( TextIsUpdatedEvents[i] != NULL ) {
+				CloseHandle( TextIsAppearedEvents[i] );
 			}
 		}
 	}
