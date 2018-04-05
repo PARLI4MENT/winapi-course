@@ -20,9 +20,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ExtractArguments.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FindWords.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -30,6 +27,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PutToFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourcesHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

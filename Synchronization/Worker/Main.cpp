@@ -17,7 +17,9 @@
 
 int main( const int argc, char** argv )
 {
-	std::string forbiddenWordsFileName;
-	ExtractArguments( argc, &argv, forbiddenWordsFileName );
+	if( argc != 2 ) {
+		throw std::runtime_error( "Invalid arguments count." );
+	}
+	std::string forbiddenWordsFileName = argv[1];
 	return 0;
 }
