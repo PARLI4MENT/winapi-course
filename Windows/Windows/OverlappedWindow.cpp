@@ -28,19 +28,7 @@ bool COverlappedWindow::Create()
 {
 	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms632680(v=vs.85).aspx.
 	// Set lpParam to this in order to get it from lpCreateParams when receive WM_NCCREATE.
-	windowHandle = CreateWindowEx( 0,
-		L"OverlappedWindow",
-		L"OverlappedWindow",
-		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		NULL,
-		NULL,
-		GetModuleHandle( NULL ),
-		static_cast<LPVOID>( this ) );
-	return windowHandle != NULL;
+	return CreateWindowEx( 0, L"OverlappedWindow", L"OverlappedWindow", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
 }
 
 void COverlappedWindow::Show( int windowShowMode )
@@ -61,7 +49,7 @@ void COverlappedWindow::OnCreate()
 
 void COverlappedWindow::OnNCCreate( const HWND handle )
 {
-
+	windowHandle = handle;
 }
 
 void COverlappedWindow::OnTimer()
@@ -70,12 +58,23 @@ void COverlappedWindow::OnTimer()
 
 void COverlappedWindow::OnPaint()
 {
-	//PAINTSTRUCT paintStruct;
-	//HDC paintDC = BeginPaint( handle, &paintStruct );
-	//RECT rect;
-	//GetClientRect( handle, &rect );
-	////drawContent( paintDC, rect );
-	//EndPaint( handle, &paintStruct );
+	PAINTSTRUCT paintStruct{};
+	HDC paintDC = BeginPaint( windowHandle, &paintStruct ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd183362(v=vs.85).aspx.
+
+	RECT rectangle{}; // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd162897(v=vs.85).aspx.
+	GetClientRect( windowHandle, &rectangle ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633503(v=vs.85).aspx.
+
+	HBRUSH backgroundBrushHandle = CreateSolidBrush( RGB( 230, 230, 240 ) ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd183518(v=vs.85).aspx,
+	SelectObject( paintDC, backgroundBrushHandle ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd162957(v=vs.85).aspx.
+	Rectangle( paintDC, rectangle.left, rectangle.top, rectangle.right, rectangle.bottom ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd162898(v=vs.85).aspx.
+	DeleteObject( backgroundBrushHandle ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd183539(v=vs.85).aspx.
+
+	HBRUSH ellipseBrushHandle = CreateSolidBrush( RGB( 128, 128, 192 ) );
+	SelectObject( paintDC, ellipseBrushHandle );
+	Ellipse( paintDC, 100, 100, 200, 400 ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd162510(v=vs.85).aspx.
+	DeleteObject( ellipseBrushHandle );
+
+	EndPaint( windowHandle, &paintStruct ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd162598(v=vs.85).aspx.
 }
 
 // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633573(v=vs.85).aspx.
@@ -97,14 +96,14 @@ LRESULT COverlappedWindow::windowProc( HWND handle, UINT message, WPARAM wParam,
 		// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms632635(v=vs.85).aspx.
 		case WM_NCCREATE:
 		{
-			// lParam A pointer to the CREATESTRUCT structure that contains information about the window being created.
-			// The members of CREATESTRUCT are identical to the parameters of the CreateWindowEx function.
+			// lParam "A pointer to the CREATESTRUCT structure that contains information about the window being created.
+			// The members of CREATESTRUCT are identical to the parameters of the CreateWindowEx function."
 			auto createStructPtr = reinterpret_cast< CREATESTRUCT* >( lParam ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms632603(v=vs.85).aspx.
 			auto createParams = reinterpret_cast<LONG>( createStructPtr->lpCreateParams );
 
-			// See:https://msdn.microsoft.com/en-us/library/windows/desktop/ms633591(v=vs.85).aspx.
-			// ...you should clear the last error information by calling SetLastError with 0 before calling SetWindowLong.
-			// Then, function failure will be indicated by a return value of zero and a GetLastError result that is nonzero.
+			// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633591(v=vs.85).aspx.
+			// "...you should clear the last error information by calling SetLastError with 0 before calling SetWindowLong.
+			// Then, function failure will be indicated by a return value of zero and a GetLastError result that is nonzero."
 			SetLastError( 0 );
 			if( SetWindowLong( handle, GWLP_USERDATA, createParams ) == 0 && GetLastError() != 0 ) {
 				MessageBoxW( 0, std::to_wstring( GetLastError() ).c_str(), L"Error", NULL );
