@@ -20,6 +20,13 @@ protected:
 
 private:
 	HWND windowHandle{};
+	UINT_PTR timer{};
+	int left = 0;
+	int top = 0;
+	int right = 0;
+	int bottom = 0;
+	int xMove = 10;
+	int yMove = 10;
 
 	static LRESULT __stdcall windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );
 	static COverlappedWindow* getThis( HWND handle );

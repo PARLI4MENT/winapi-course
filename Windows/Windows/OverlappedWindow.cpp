@@ -39,12 +39,24 @@ void COverlappedWindow::Show( int windowShowMode )
 
 void COverlappedWindow::OnDestroy()
 {
+	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms644903(v=vs.85).aspx.
+	KillTimer( windowHandle, timer );
 	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms644945(v=vs.85).aspx.
 	PostQuitMessage( 0 );
 }
 
 void COverlappedWindow::OnCreate()
 {
+	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633545(v=vs.85).aspx.
+	//SetWindowPos( windowHandle, NULL, 0, 0, width, height, SWP_SHOWWINDOW );
+	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms644906(v=vs.85).aspx.
+	timer = SetTimer( windowHandle, 0, 40, 0 ); 
+	RECT rectangle{};
+	GetClientRect( windowHandle, &rectangle );
+	left = ( 2 * rectangle.left + rectangle.right ) / 3;
+	top = ( 2 * rectangle.top + rectangle.bottom ) / 3;
+	right = ( 2 * rectangle.right  + rectangle.left ) / 3;
+	bottom = ( 2 * rectangle.bottom  + rectangle.top ) / 3;
 }
 
 void COverlappedWindow::OnNCCreate( const HWND handle )
@@ -54,6 +66,22 @@ void COverlappedWindow::OnNCCreate( const HWND handle )
 
 void COverlappedWindow::OnTimer()
 {
+	RECT rectangle{};
+	GetClientRect( windowHandle, &rectangle );
+	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd145002(v=vs.85).aspx.
+	InvalidateRect( windowHandle, &rectangle, FALSE );
+
+	if( right + xMove > rectangle.right || left + xMove < rectangle.left ) {
+		xMove *= -1;
+	}
+	if( bottom + yMove > rectangle.bottom || top + yMove < rectangle.top ) {
+		yMove *= -1;
+	}
+
+	left += xMove;
+	top += yMove;
+	right += xMove;
+	bottom += yMove;
 }
 
 void COverlappedWindow::OnPaint()
@@ -71,7 +99,7 @@ void COverlappedWindow::OnPaint()
 
 	HBRUSH ellipseBrushHandle = CreateSolidBrush( RGB( 128, 128, 192 ) );
 	SelectObject( paintDC, ellipseBrushHandle );
-	Ellipse( paintDC, 100, 100, 200, 400 ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd162510(v=vs.85).aspx.
+	Ellipse( paintDC, left, top, right, bottom ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd162510(v=vs.85).aspx.
 	DeleteObject( ellipseBrushHandle );
 
 	EndPaint( windowHandle, &paintStruct ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd162598(v=vs.85).aspx.
