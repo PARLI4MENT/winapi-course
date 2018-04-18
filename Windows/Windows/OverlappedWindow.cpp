@@ -12,47 +12,40 @@ COverlappedWindow::~COverlappedWindow()
 
 bool COverlappedWindow::Register()
 {
-	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633577(v=vs.85).aspx.
 	WNDCLASSEX windowClass{};
 
 	windowClass.cbSize = sizeof( windowClass );
 	windowClass.lpfnWndProc = windowProc;
-	windowClass.hInstance = GetModuleHandle( NULL ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms683199(v=vs.85).aspx.
+	windowClass.hInstance = GetModuleHandle( NULL );
 	windowClass.lpszClassName = L"OverlappedWindow";
 
-	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633587(v=vs.85).aspx.
 	return RegisterClassEx( &windowClass ) != 0;
 }
 
 bool COverlappedWindow::Create()
 {
-	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms632680(v=vs.85).aspx.
 	// Set lpParam to this in order to get it from lpCreateParams when receive WM_NCCREATE.
 	return CreateWindowEx( 0, L"OverlappedWindow", L"OverlappedWindow", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
 }
 
 void COverlappedWindow::Show( int windowShowMode )
 {
-	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633548(v=vs.85).aspx.
 	ShowWindow( windowHandle, windowShowMode );
 }
 
 void COverlappedWindow::OnDestroy()
 {
-	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms644903(v=vs.85).aspx.
 	KillTimer( windowHandle, timer );
-	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms644945(v=vs.85).aspx.
 	PostQuitMessage( 0 );
 }
 
 void COverlappedWindow::OnCreate()
 {
-	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633545(v=vs.85).aspx.
-	//SetWindowPos( windowHandle, NULL, 0, 0, width, height, SWP_SHOWWINDOW );
-	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms644906(v=vs.85).aspx.
-	timer = SetTimer( windowHandle, 0, 40, 0 ); 
+	timer = SetTimer( windowHandle, 0, 10, 0 ); 
+
 	RECT rectangle{};
 	GetClientRect( windowHandle, &rectangle );
+
 	left = ( 2 * rectangle.left + rectangle.right ) / 3;
 	top = ( 2 * rectangle.top + rectangle.bottom ) / 3;
 	right = ( 2 * rectangle.right  + rectangle.left ) / 3;
@@ -68,7 +61,6 @@ void COverlappedWindow::OnTimer()
 {
 	RECT rectangle{};
 	GetClientRect( windowHandle, &rectangle );
-	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd145002(v=vs.85).aspx.
 	InvalidateRect( windowHandle, &rectangle, FALSE );
 
 	if( right + xMove > rectangle.right || left + xMove < rectangle.left ) {
@@ -87,49 +79,52 @@ void COverlappedWindow::OnTimer()
 void COverlappedWindow::OnPaint()
 {
 	PAINTSTRUCT paintStruct{};
-	HDC paintDC = BeginPaint( windowHandle, &paintStruct ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd183362(v=vs.85).aspx.
+	HDC paintDC = BeginPaint( windowHandle, &paintStruct );
+	RECT rectangle{};
+	GetClientRect( windowHandle, &rectangle );
 
-	RECT rectangle{}; // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd162897(v=vs.85).aspx.
-	GetClientRect( windowHandle, &rectangle ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633503(v=vs.85).aspx.
+	HDC compatibleDC = CreateCompatibleDC( paintDC );
+	HBITMAP compatibleBitmap = CreateCompatibleBitmap( paintDC, rectangle.right - rectangle.left, rectangle.bottom - rectangle.top );
+	HGDIOBJ oldCompatibleBitmap = SelectObject( compatibleDC, compatibleBitmap );
 
-	HBRUSH backgroundBrushHandle = CreateSolidBrush( RGB( 230, 230, 240 ) ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd183518(v=vs.85).aspx,
-	SelectObject( paintDC, backgroundBrushHandle ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd162957(v=vs.85).aspx.
-	Rectangle( paintDC, rectangle.left, rectangle.top, rectangle.right, rectangle.bottom ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd162898(v=vs.85).aspx.
-	DeleteObject( backgroundBrushHandle ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd183539(v=vs.85).aspx.
+	HBRUSH backgroundBrushHandle = CreateSolidBrush( RGB( 230, 230, 240 ) );
+	SelectObject( compatibleDC, backgroundBrushHandle );
+	Rectangle( compatibleDC, rectangle.left, rectangle.top, rectangle.right, rectangle.bottom );
 
 	HBRUSH ellipseBrushHandle = CreateSolidBrush( RGB( 128, 128, 192 ) );
-	SelectObject( paintDC, ellipseBrushHandle );
-	Ellipse( paintDC, left, top, right, bottom ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd162510(v=vs.85).aspx.
-	DeleteObject( ellipseBrushHandle );
+	SelectObject( compatibleDC, ellipseBrushHandle );
+	Ellipse( compatibleDC, left, top, right, bottom );
 
-	EndPaint( windowHandle, &paintStruct ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd162598(v=vs.85).aspx.
+	BitBlt( paintDC, rectangle.left, rectangle.top, rectangle.right - rectangle.left, rectangle.bottom - rectangle.top, compatibleDC, 0, 0, SRCCOPY );
+	SelectObject( compatibleDC, oldCompatibleBitmap );
+
+	DeleteObject( backgroundBrushHandle );
+	DeleteObject( ellipseBrushHandle );
+	DeleteObject( compatibleBitmap );
+	DeleteDC( compatibleDC );
+	EndPaint( windowHandle, &paintStruct );
 }
 
-// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633573(v=vs.85).aspx.
 LRESULT COverlappedWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	switch( message ) {
-		// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms632620(v=vs.85).aspx.
 		case WM_DESTROY:
 		{
 			getThis( handle )->OnDestroy();
 			break;
 		}
-		// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms632619(v=vs.85).aspx.
 		case WM_CREATE:
 		{
 			getThis( handle )->OnCreate();
 			return DefWindowProc( handle, message, wParam, lParam );
 		}
-		// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms632635(v=vs.85).aspx.
 		case WM_NCCREATE:
 		{
 			// lParam "A pointer to the CREATESTRUCT structure that contains information about the window being created.
 			// The members of CREATESTRUCT are identical to the parameters of the CreateWindowEx function."
-			auto createStructPtr = reinterpret_cast< CREATESTRUCT* >( lParam ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms632603(v=vs.85).aspx.
+			auto createStructPtr = reinterpret_cast< CREATESTRUCT* >( lParam );
 			auto createParams = reinterpret_cast<LONG>( createStructPtr->lpCreateParams );
 
-			// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633591(v=vs.85).aspx.
 			// "...you should clear the last error information by calling SetLastError with 0 before calling SetWindowLong.
 			// Then, function failure will be indicated by a return value of zero and a GetLastError result that is nonzero."
 			SetLastError( 0 );
@@ -142,20 +137,17 @@ LRESULT COverlappedWindow::windowProc( HWND handle, UINT message, WPARAM wParam,
 			actualThis->OnNCCreate( handle );
 			return DefWindowProc( handle, message, wParam, lParam );
 		}
-		// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms644902(v=vs.85).aspx.
 		case WM_TIMER: 
 		{
 			getThis( handle )->OnTimer();
 			break;
 		}
-		// See: https://msdn.microsoft.com/en-us/library/windows/desktop/dd145213(v=vs.85).aspx.
 		case WM_PAINT:
 		{
 			getThis( handle )->OnPaint();
 			break;
 		}
 		default:
-			// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633572(v=vs.85).aspx.
 			return DefWindowProc( handle, message, wParam, lParam );
 	}
 	return 0;
