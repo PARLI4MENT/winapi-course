@@ -1,25 +1,34 @@
 #include <Windows.h>
 
-LRESULT CALLBACK MainWndProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
-{
-	switch( uMsg ) {
-		case WM_CREATE:	
-		case WM_PAINT:
-		case WM_SIZE:
-		case WM_DESTROY:
-			break;
-		default:
-			// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633572(v=vs.85).aspx.
-			return DefWindowProc( hwnd, uMsg, wParam, lParam );
-	}
-	return 0;
-}
+#include "OverlappedWindow.h"
 
-int WinMain( HINSTANCE, HINSTANCE, LPTSTR, int )
+// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633559(v=vs.85).aspx.
+int __stdcall wWinMain( HINSTANCE handleToInstance, HINSTANCE handleToPrevInstance, LPWSTR commandLine, int windowShowMode )
 {
-	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633577(v=vs.85).aspx.
-	WNDCLASSEX windowClass;
-	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633587(v=vs.85).aspx.
-	ATOM const atom = ::RegisterClassEx( &windowClass );
+	try {
+		COverlappedWindow overlappedWindow{};
+
+		if( !overlappedWindow.Register() ) {
+			throw L"Cannot register a window.";
+		}
+
+		if (!overlappedWindow.Create() ) {
+			throw L"Cannot create a window.";
+		}
+
+		overlappedWindow.Show( windowShowMode );
+
+		MSG message{};
+		// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms644936(v=vs.85).aspx.
+		while( GetMessage( &message, ( HWND ) NULL, 0, 0 ) > 0 ) {
+			TranslateMessage( &message );
+			DispatchMessage( &message );
+		}
+	} catch( const wchar_t* message ) {
+		MessageBoxW( 0, message, L"Error", MB_OK );
+	} catch( ... ) {
+		MessageBoxW( 0, L"Unknown error", L"Error", MB_OK );
+	}
+
 	return 0;
 }
