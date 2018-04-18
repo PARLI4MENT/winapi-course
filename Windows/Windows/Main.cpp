@@ -3,17 +3,17 @@
 #include "OverlappedWindow.h"
 
 // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633559(v=vs.85).aspx.
-int __stdcall wWinMain( HINSTANCE handleToInstance, HINSTANCE handleToPrevInstance, LPWSTR commandLine, int windowShowMode )
+int wWinMain( HINSTANCE handleToInstance, HINSTANCE handleToPrevInstance, LPWSTR commandLine, int windowShowMode )
 {
 	try {
 		COverlappedWindow overlappedWindow{};
 
 		if( !overlappedWindow.Register() ) {
-			throw L"Cannot register a window.";
+			throw std::wstring{ L"Cannot register a window class." };
 		}
 
-		if (!overlappedWindow.Create() ) {
-			throw L"Cannot create a window.";
+		if( !overlappedWindow.Create( std::wstring{ L"WindowTitle" } ) ) {
+			throw std::wstring{ L"Cannot create a window." };
 		}
 
 		overlappedWindow.Show( windowShowMode );
@@ -21,11 +21,11 @@ int __stdcall wWinMain( HINSTANCE handleToInstance, HINSTANCE handleToPrevInstan
 		MSG message{};
 		// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms644936(v=vs.85).aspx.
 		while( GetMessage( &message, ( HWND ) NULL, 0, 0 ) > 0 ) {
-			TranslateMessage( &message );
-			DispatchMessage( &message );
+			TranslateMessage( &message ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms644955(v=vs.85).aspx.
+			DispatchMessage( &message ); // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms644934(v=vs.85).aspx.
 		}
-	} catch( const wchar_t* message ) {
-		MessageBoxW( 0, message, L"Error", MB_OK );
+	} catch( const std::wstring& errorMessage ) {
+		MessageBoxW( 0, errorMessage.c_str() , L"Error", MB_OK );
 	} catch( ... ) {
 		MessageBoxW( 0, L"Unknown error", L"Error", MB_OK );
 	}

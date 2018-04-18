@@ -10,7 +10,7 @@ public:
 	~COverlappedWindow();
 
 	static bool Register();
-	bool Create();
+	bool Create( const std::wstring& windowTitle );
 	void Show( int windowShowMode );
 
 protected:

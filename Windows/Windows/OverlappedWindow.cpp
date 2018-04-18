@@ -24,10 +24,10 @@ bool COverlappedWindow::Register()
 	return RegisterClassEx( &windowClass ) != 0;
 }
 
-bool COverlappedWindow::Create()
+bool COverlappedWindow::Create( const std::wstring& windowTitle )
 {
 	// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms632680(v=vs.85).aspx.
-	windowHandle = CreateWindowEx( 0, className.c_str(), L"Window", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, instanceHandle, NULL );
+	windowHandle = CreateWindowEx( 0, className.c_str(), windowTitle.c_str(), WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, instanceHandle, NULL );
 	return windowHandle != NULL;
 }
 
@@ -58,6 +58,7 @@ void COverlappedWindow::OnPaint()
 {
 }
 
+// See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633573(v=vs.85).aspx.
 LRESULT COverlappedWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	switch( message ) {
