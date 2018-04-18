@@ -2,8 +2,10 @@
 
 #include "OverlappedWindow.h"
 
+#include <string>
+
 // See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms633559(v=vs.85).aspx.
-int wWinMain( HINSTANCE handleToInstance, HINSTANCE handleToPrevInstance, LPWSTR commandLine, int windowShowMode )
+int wWinMain( HINSTANCE instanceHandle, HINSTANCE prevHandleInstance, LPWSTR commandLine, int windowShowMode )
 {
 	try {
 		COverlappedWindow overlappedWindow{};
@@ -12,7 +14,7 @@ int wWinMain( HINSTANCE handleToInstance, HINSTANCE handleToPrevInstance, LPWSTR
 			throw std::wstring{ L"Cannot register a window class." };
 		}
 
-		if( !overlappedWindow.Create( std::wstring{ L"WindowTitle" } ) ) {
+		if( !overlappedWindow.Create() ) {
 			throw std::wstring{ L"Cannot create a window." };
 		}
 

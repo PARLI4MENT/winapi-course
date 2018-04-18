@@ -2,15 +2,13 @@
 
 #include <Windows.h>
 
-#include <string>
-
 class COverlappedWindow {
 public:
 	COverlappedWindow() = default;
 	~COverlappedWindow();
 
 	static bool Register();
-	bool Create( const std::wstring& windowTitle );
+	bool Create();
 	void Show( int windowShowMode );
 
 protected:
@@ -21,8 +19,8 @@ protected:
 	void OnPaint();
 
 private:
-	static HINSTANCE instanceHandle;
-	static const std::wstring className;
 	HWND windowHandle{};
+
 	static LRESULT __stdcall windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );
+	static COverlappedWindow* getThis( HWND handle );
 };
