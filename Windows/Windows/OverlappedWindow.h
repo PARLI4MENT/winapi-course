@@ -26,7 +26,7 @@ private:
 	int right = 0;
 	int bottom = 0;
 	int xMove = 10;
-	int yMove = 10;
+	int yMove = 20;
 
 	static LRESULT __stdcall windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );
 	static COverlappedWindow* getThis( HWND handle );

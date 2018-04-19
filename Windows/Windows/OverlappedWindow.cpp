@@ -25,7 +25,8 @@ bool COverlappedWindow::Register()
 bool COverlappedWindow::Create()
 {
 	// Set lpParam to this in order to get it from lpCreateParams when receive WM_NCCREATE.
-	return CreateWindowEx( 0, L"OverlappedWindow", L"OverlappedWindow", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
+	return CreateWindowEx( 0, L"OverlappedWindow", L"OverlappedWindow", WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU, CW_USEDEFAULT,
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
 }
 
 void COverlappedWindow::Show( int windowShowMode )
@@ -130,7 +131,7 @@ LRESULT COverlappedWindow::windowProc( HWND handle, UINT message, WPARAM wParam,
 			SetLastError( 0 );
 			if( SetWindowLong( handle, GWLP_USERDATA, createParams ) == 0 && GetLastError() != 0 ) {
 				MessageBoxW( 0, std::to_wstring( GetLastError() ).c_str(), L"Error", NULL );
-				std::abort();
+				return FALSE;
 			}
 
 			auto actualThis = reinterpret_cast<COverlappedWindow*>( createParams );
