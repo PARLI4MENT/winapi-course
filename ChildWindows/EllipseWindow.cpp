@@ -22,11 +22,11 @@ bool CEllipseWindow::Register()
 	return RegisterClassEx( &windowClass ) != 0;
 }
 
-bool CEllipseWindow::Create( HWND parentWinwowHandle )
+bool CEllipseWindow::Create( HWND parentWinwowHandle, const int left, const int top, const int width, const int heigth )
 {
 	// Set lpParam to this in order to get it from lpCreateParams when receive WM_NCCREATE.
-	return CreateWindowEx( 0, L"EllipseWindow", L"EllipseWindow", WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU, CW_USEDEFAULT,
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, parentWinwowHandle, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
+	return CreateWindowEx( 0, L"EllipseWindow", L"EllipseWindow", WS_CHILD,
+		left, top, width, heigth, parentWinwowHandle, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
 }
 
 void CEllipseWindow::Show( int windowShowMode )

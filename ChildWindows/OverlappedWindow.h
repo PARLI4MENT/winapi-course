@@ -19,12 +19,13 @@ protected:
 	void OnDestroy();
 	void OnCreate();
 	void OnNCCreate( const HWND handle );
+	void OnSize();
 
 private:
 	HWND windowHandle{};
 	const static int rowsCount = 2;
-	const static int columnsCount = 2;
-	std::array<std::array<CEllipseWindow, rowsCount>, columnsCount> ellipseWindows{};
+	const static int columnsCount = 3;
+	std::array<std::array<CEllipseWindow, columnsCount>, rowsCount> ellipseWindows{};
 
 	static LRESULT __stdcall windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );
 	static COverlappedWindow* getThis( HWND handle );

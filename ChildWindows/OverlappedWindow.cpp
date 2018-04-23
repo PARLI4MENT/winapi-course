@@ -25,15 +25,15 @@ bool COverlappedWindow::Register()
 bool COverlappedWindow::Create()
 {
 	// Set lpParam to this in order to get it from lpCreateParams when receive WM_NCCREATE.
-	return CreateWindowEx( 0, L"OverlappedWindow", L"OverlappedWindow", WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU, CW_USEDEFAULT,
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
+	return CreateWindowEx( 0, L"OverlappedWindow", L"OverlappedWindow", WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU,
+		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
 }
 
 void COverlappedWindow::Show( int windowShowMode )
 {
 	ShowWindow( windowHandle, windowShowMode );
 	for ( int i = 0; i < rowsCount; ++i ) {
-		for( int j = 0; j < rowsCount; ++j ) {
+		for( int j = 0; j < columnsCount; ++j ) {
 			ellipseWindows[i][j].Show( windowShowMode );
 		}
 	}
@@ -46,10 +46,19 @@ void COverlappedWindow::OnDestroy()
 
 void COverlappedWindow::OnCreate()
 {
+	RECT rectangle{};
+	GetClientRect( windowHandle, &rectangle );
+
+	const int width = ( rectangle.right - rectangle.left ) / columnsCount;
+	const int height = ( rectangle.bottom - rectangle.top ) / rowsCount;
+
 	CEllipseWindow::Register();
 	for( int i = 0; i < rowsCount; ++i ) {
-		for( int j = 0; j < rowsCount; ++j ) {
-			ellipseWindows[i][j].Create( windowHandle );
+		for( int j = 0; j < columnsCount; ++j ) {
+			const int left = rectangle.left + j * width + j;
+			const int top = rectangle.top + i * height + i;
+
+			ellipseWindows[i][j].Create( windowHandle, left, top, width, height );
 		}
 	}
 }
@@ -57,6 +66,24 @@ void COverlappedWindow::OnCreate()
 void COverlappedWindow::OnNCCreate( const HWND handle )
 {
 	windowHandle = handle;
+}
+
+void COverlappedWindow::OnSize()
+{
+	//RECT rectangle{};
+	//GetWindowRect( windowHandle, &rectangle );
+
+	//const int width = ( rectangle.right - rectangle.left ) / columnsCount;
+	//const int height = ( rectangle.bottom - rectangle.top ) / rowsCount;
+
+	//for( int i = 0; i < rowsCount; ++i ) {
+	//	for( int j = 0; j < rowsCount; ++j ) {
+	//		const int left = rectangle.left + j * width + j;
+	//		const int top = rectangle.top + i * height + i;
+
+	//		SetWindowPos( ellipseWindows[i][j].windowHandle, HWND_NOTOPMOST, left, top, width, height, SWP_SHOWWINDOW );
+	//	}
+	//}
 }
 
 LRESULT COverlappedWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
@@ -90,6 +117,11 @@ LRESULT COverlappedWindow::windowProc( HWND handle, UINT message, WPARAM wParam,
 			auto actualThis = reinterpret_cast<COverlappedWindow*>( createParams );
 			actualThis->OnNCCreate( handle );
 			return DefWindowProc( handle, message, wParam, lParam );
+		}
+		case WM_SIZE:
+		{
+			getThis( handle )->OnSize();
+			return 0;
 		}
 		default:
 			return DefWindowProc( handle, message, wParam, lParam );

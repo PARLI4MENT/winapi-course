@@ -2,13 +2,17 @@
 
 #include <Windows.h>
 
+class COverlappedWindow;
+
 class CEllipseWindow {
+	friend COverlappedWindow;
+
 public:
 	CEllipseWindow() = default;
 	~CEllipseWindow();
 
 	static bool Register();
-	bool Create( HWND parentWinwowHandle );
+	bool Create( HWND parentWinwowHandle, const int left, const int top, const int width, const int heigth );
 	void Show( int windowShowMode );
 
 protected:
@@ -26,7 +30,7 @@ private:
 	int right = 0;
 	int bottom = 0;
 	int xMove = 10;
-	int yMove = 20;
+	int yMove = 10;
 
 	static LRESULT __stdcall windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );
 	static CEllipseWindow* getThis( HWND handle );
