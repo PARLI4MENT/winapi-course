@@ -21,6 +21,7 @@ protected:
 	void OnNCCreate( const HWND handle );
 	void OnTimer();
 	void OnPaint();
+	void onLButtonDown();
 
 private:
 	HWND windowHandle{};

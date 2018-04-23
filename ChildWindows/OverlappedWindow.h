@@ -23,8 +23,8 @@ protected:
 
 private:
 	HWND windowHandle{};
-	const static int rowsCount = 1;
-	const static int columnsCount = 1;
+	const static int rowsCount = 2;
+	const static int columnsCount = 3;
 	std::array<std::array<CEllipseWindow, columnsCount>, rowsCount> ellipseWindows{};
 
 	static LRESULT __stdcall windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );

@@ -64,16 +64,20 @@ void CEllipseWindow::OnTimer()
 	GetClientRect( windowHandle, &rectangle );
 	InvalidateRect( windowHandle, &rectangle, FALSE );
 
-	horizontalStep = left < rectangle.left ? std::abs( horizontalStep ) : ( right > rectangle.right ? -std::abs( horizontalStep ) : horizontalStep );
-	verticalStep = top < rectangle.top ? std::abs( verticalStep ) : ( bottom > rectangle.bottom ? -std::abs( verticalStep ) : verticalStep );
-	left += horizontalStep;
-	top += verticalStep;
-	right += horizontalStep;
-	bottom += verticalStep;
+	if( GetFocus() == windowHandle ) {
+		horizontalStep = left < rectangle.left ? std::abs( horizontalStep ) : ( right > rectangle.right ? -std::abs( horizontalStep ) : horizontalStep );
+		verticalStep = top < rectangle.top ? std::abs( verticalStep ) : ( bottom > rectangle.bottom ? -std::abs( verticalStep ) : verticalStep );
+		left += horizontalStep;
+		top += verticalStep;
+		right += horizontalStep;
+		bottom += verticalStep;
+	}
 }
 
 void CEllipseWindow::OnPaint()
 {
+	bool isFocused = GetFocus() == windowHandle;
+
 	PAINTSTRUCT paintStruct{};
 	HDC paintDC = BeginPaint( windowHandle, &paintStruct );
 	RECT rectangle{};
@@ -87,7 +91,7 @@ void CEllipseWindow::OnPaint()
 	SelectObject( compatibleDC, backgroundBrushHandle );
 	Rectangle( compatibleDC, rectangle.left, rectangle.top, rectangle.right, rectangle.bottom );
 
-	HBRUSH ellipseBrushHandle = CreateSolidBrush( RGB( 128, 128, 192 ) );
+	HBRUSH ellipseBrushHandle = isFocused ? CreateSolidBrush( RGB( 128, 64, 64 ) ) : CreateSolidBrush( RGB( 128, 128, 192 ) );
 	SelectObject( compatibleDC, ellipseBrushHandle );
 	Ellipse( compatibleDC, left, top, right, bottom );
 
@@ -101,13 +105,18 @@ void CEllipseWindow::OnPaint()
 	EndPaint( windowHandle, &paintStruct );
 }
 
+void CEllipseWindow::onLButtonDown()
+{
+	SetFocus( windowHandle );
+}
+
 LRESULT CEllipseWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	switch( message ) {
 		case WM_DESTROY:
 		{
 			getThis( handle )->OnDestroy();
-			break;
+			return 0;
 		}
 		case WM_CREATE:
 		{
@@ -136,17 +145,21 @@ LRESULT CEllipseWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LP
 		case WM_TIMER: 
 		{
 			getThis( handle )->OnTimer();
-			break;
+			return 0;
 		}
 		case WM_PAINT:
 		{
 			getThis( handle )->OnPaint();
-			break;
+			return 0;
+		}
+		case WM_LBUTTONDOWN:
+		{
+			getThis( handle )->onLButtonDown();
+			return 0;
 		}
 		default:
 			return DefWindowProc( handle, message, wParam, lParam );
 	}
-	return 0;
 }
 
 CEllipseWindow* CEllipseWindow::getThis( HWND handle )
