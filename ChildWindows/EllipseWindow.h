@@ -29,8 +29,8 @@ private:
 	int top = 0;
 	int right = 0;
 	int bottom = 0;
-	int xMove = 10;
-	int yMove = 10;
+	int horizontalStep = 10;
+	int verticalStep = 10;
 
 	static LRESULT __stdcall windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );
 	static CEllipseWindow* getThis( HWND handle );

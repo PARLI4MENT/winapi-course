@@ -64,17 +64,12 @@ void CEllipseWindow::OnTimer()
 	GetClientRect( windowHandle, &rectangle );
 	InvalidateRect( windowHandle, &rectangle, FALSE );
 
-	if( right + xMove > rectangle.right || left + xMove < rectangle.left ) {
-		xMove *= -1;
-	}
-	if( bottom + yMove > rectangle.bottom || top + yMove < rectangle.top ) {
-		yMove *= -1;
-	}
-
-	left += xMove;
-	top += yMove;
-	right += xMove;
-	bottom += yMove;
+	horizontalStep = left < rectangle.left ? std::abs( horizontalStep ) : ( right > rectangle.right ? -std::abs( horizontalStep ) : horizontalStep );
+	verticalStep = top < rectangle.top ? std::abs( verticalStep ) : ( bottom > rectangle.bottom ? -std::abs( verticalStep ) : verticalStep );
+	left += horizontalStep;
+	top += verticalStep;
+	right += horizontalStep;
+	bottom += verticalStep;
 }
 
 void CEllipseWindow::OnPaint()

@@ -25,7 +25,7 @@ bool COverlappedWindow::Register()
 bool COverlappedWindow::Create()
 {
 	// Set lpParam to this in order to get it from lpCreateParams when receive WM_NCCREATE.
-	return CreateWindowEx( 0, L"OverlappedWindow", L"OverlappedWindow", WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU,
+	return CreateWindowEx( 0, L"OverlappedWindow", L"OverlappedWindow", WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
 }
 
@@ -70,20 +70,20 @@ void COverlappedWindow::OnNCCreate( const HWND handle )
 
 void COverlappedWindow::OnSize()
 {
-	//RECT rectangle{};
-	//GetWindowRect( windowHandle, &rectangle );
+	RECT rectangle{};
+	GetClientRect( windowHandle, &rectangle );
 
-	//const int width = ( rectangle.right - rectangle.left ) / columnsCount;
-	//const int height = ( rectangle.bottom - rectangle.top ) / rowsCount;
+	const int width = ( rectangle.right - rectangle.left ) / columnsCount;
+	const int height = ( rectangle.bottom - rectangle.top ) / rowsCount;
 
-	//for( int i = 0; i < rowsCount; ++i ) {
-	//	for( int j = 0; j < rowsCount; ++j ) {
-	//		const int left = rectangle.left + j * width + j;
-	//		const int top = rectangle.top + i * height + i;
+	for( int i = 0; i < rowsCount; ++i ) {
+		for( int j = 0; j < rowsCount; ++j ) {
+			const int left = rectangle.left + j * width + j;
+			const int top = rectangle.top + i * height + i;
 
-	//		SetWindowPos( ellipseWindows[i][j].windowHandle, HWND_NOTOPMOST, left, top, width, height, SWP_SHOWWINDOW );
-	//	}
-	//}
+			SetWindowPos( ellipseWindows[i][j].windowHandle, HWND_TOP, left, top, width, height, SWP_SHOWWINDOW );
+		}
+	}
 }
 
 LRESULT COverlappedWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
