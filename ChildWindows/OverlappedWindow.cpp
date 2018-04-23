@@ -55,8 +55,8 @@ void COverlappedWindow::OnCreate()
 	CEllipseWindow::Register();
 	for( int i = 0; i < rowsCount; ++i ) {
 		for( int j = 0; j < columnsCount; ++j ) {
-			const int left = rectangle.left + j * width + j;
-			const int top = rectangle.top + i * height + i;
+			const int left = rectangle.left + j * width;
+			const int top = rectangle.top + i * height;
 
 			ellipseWindows[i][j].Create( windowHandle, left, top, width, height );
 		}
@@ -77,9 +77,9 @@ void COverlappedWindow::OnSize()
 	const int height = ( rectangle.bottom - rectangle.top ) / rowsCount;
 
 	for( int i = 0; i < rowsCount; ++i ) {
-		for( int j = 0; j < rowsCount; ++j ) {
-			const int left = rectangle.left + j * width + j;
-			const int top = rectangle.top + i * height + i;
+		for( int j = 0; j < columnsCount; ++j ) {
+			const int left = rectangle.left + j * width;
+			const int top = rectangle.top + i * height;
 
 			SetWindowPos( ellipseWindows[i][j].windowHandle, HWND_TOP, left, top, width, height, SWP_SHOWWINDOW );
 		}

@@ -25,7 +25,7 @@ bool CEllipseWindow::Register()
 bool CEllipseWindow::Create( HWND parentWinwowHandle, const int left, const int top, const int width, const int heigth )
 {
 	// Set lpParam to this in order to get it from lpCreateParams when receive WM_NCCREATE.
-	return CreateWindowEx( 0, L"EllipseWindow", L"EllipseWindow", WS_CHILD,
+	return CreateWindowEx( 0, L"EllipseWindow", L"EllipseWindow", WS_CHILD | WS_BORDER,
 		left, top, width, heigth, parentWinwowHandle, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
 }
 
@@ -89,7 +89,7 @@ void CEllipseWindow::OnPaint()
 
 	HBRUSH backgroundBrushHandle = CreateSolidBrush( RGB( 230, 230, 240 ) );
 	SelectObject( compatibleDC, backgroundBrushHandle );
-	Rectangle( compatibleDC, rectangle.left, rectangle.top, rectangle.right, rectangle.bottom );
+	FillRect( compatibleDC, &rectangle, backgroundBrushHandle );
 
 	HBRUSH ellipseBrushHandle = isFocused ? CreateSolidBrush( RGB( 128, 64, 64 ) ) : CreateSolidBrush( RGB( 128, 128, 192 ) );
 	SelectObject( compatibleDC, ellipseBrushHandle );
