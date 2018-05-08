@@ -1,6 +1,5 @@
 #include "EditControl.h"
 
-#include <cstdlib>
 #include <string>
 
 CEditControl::~CEditControl()
@@ -25,13 +24,14 @@ bool CEditControl::Register()
 bool CEditControl::Create( HWND parentWinwowHandle, const int left, const int top, const int width, const int heigth )
 {
 	// Set lpParam to this in order to get it from lpCreateParams when receive WM_NCCREATE.
-	return CreateWindowEx( 0, L"EditControl", L"EditControl", WS_CHILD | ES_MULTILINE,
+	return CreateWindowEx( 0, L"EditControl", L"EditControl", WS_CHILD | WS_BORDER | WS_VISIBLE | WS_VSCROLL | ES_LEFT | ES_MULTILINE | ES_AUTOVSCROLL,
 		left, top, width, heigth, parentWinwowHandle, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
 }
 
 void CEditControl::Show( int windowShowMode )
 {
 	ShowWindow( windowHandle, windowShowMode );
+	SetFocus( windowHandle );
 }
 
 void CEditControl::OnDestroy()
@@ -41,12 +41,18 @@ void CEditControl::OnDestroy()
 
 void CEditControl::OnCreate()
 {
-	SetFocus( windowHandle );
 }
 
 void CEditControl::OnNCCreate( const HWND handle )
 {
 	windowHandle = handle;
+}
+
+void CEditControl::OnCommand( WPARAM wParam )
+{
+	if( HIWORD( wParam ) == EN_CHANGE ) {
+		isEdited = true;
+	}
 }
 
 LRESULT CEditControl::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
@@ -73,13 +79,18 @@ LRESULT CEditControl::windowProc( HWND handle, UINT message, WPARAM wParam, LPAR
 			// Then, function failure will be indicated by a return value of zero and a GetLastError result that is nonzero."
 			SetLastError( 0 );
 			if( SetWindowLong( handle, GWLP_USERDATA, createParams ) == 0 && GetLastError() != 0 ) {
-				MessageBoxW( 0, std::to_wstring( GetLastError() ).c_str(), L"Error", NULL );
+				MessageBoxW( 0, std::to_wstring( GetLastError() ).c_str(), L"Error", MB_OK );
 				return FALSE;
 			}
 
 			auto actualThis = reinterpret_cast<CEditControl*>( createParams );
 			actualThis->OnNCCreate( handle );
 			return DefWindowProc( handle, message, wParam, lParam );
+		}
+		case WM_COMMAND:
+		{
+			getThis( handle )->OnCommand( wParam );
+			return 0;
 		}
 		default:
 			return DefWindowProc( handle, message, wParam, lParam );

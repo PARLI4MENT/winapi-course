@@ -19,9 +19,11 @@ protected:
 	void OnDestroy();
 	void OnCreate();
 	void OnNCCreate( const HWND handle );
+	void OnCommand( WPARAM wParam );
 
 private:
 	HWND windowHandle{};
+	bool isEdited{ false };
 
 	static LRESULT __stdcall windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );
 	static CEditControl* getThis( HWND handle );

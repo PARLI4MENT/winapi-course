@@ -70,7 +70,9 @@ void CEditor::OnSize()
 
 void CEditor::OnClose()
 {
-	MessageBoxW( 0,  L"Are you sure that you would like to close the window?", L"Close", MB_OK );
+	if( editControl.isEdited ) {
+		MessageBoxW( 0, L"Are you sure that you would like to close the window?", L"Close", MB_OK );
+	}
 }
 
 LRESULT CEditor::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
