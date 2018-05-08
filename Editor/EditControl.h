@@ -19,9 +19,6 @@ protected:
 	void OnDestroy();
 	void OnCreate();
 	void OnNCCreate( const HWND handle );
-	void OnTimer();
-	void OnPaint();
-	void onLButtonDown();
 
 private:
 	HWND windowHandle{};

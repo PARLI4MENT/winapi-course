@@ -25,7 +25,7 @@ bool CEditControl::Register()
 bool CEditControl::Create( HWND parentWinwowHandle, const int left, const int top, const int width, const int heigth )
 {
 	// Set lpParam to this in order to get it from lpCreateParams when receive WM_NCCREATE.
-	return CreateWindowEx( 0, L"EditControl", L"EditControl", WS_CHILD | WS_BORDER,
+	return CreateWindowEx( 0, L"EditControl", L"EditControl", WS_CHILD | ES_MULTILINE,
 		left, top, width, heigth, parentWinwowHandle, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
 }
 
@@ -41,24 +41,12 @@ void CEditControl::OnDestroy()
 
 void CEditControl::OnCreate()
 {
+	SetFocus( windowHandle );
 }
 
 void CEditControl::OnNCCreate( const HWND handle )
 {
 	windowHandle = handle;
-}
-
-void CEditControl::OnTimer()
-{
-}
-
-void CEditControl::OnPaint()
-{
-}
-
-void CEditControl::onLButtonDown()
-{
-	SetFocus( windowHandle );
 }
 
 LRESULT CEditControl::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
@@ -92,21 +80,6 @@ LRESULT CEditControl::windowProc( HWND handle, UINT message, WPARAM wParam, LPAR
 			auto actualThis = reinterpret_cast<CEditControl*>( createParams );
 			actualThis->OnNCCreate( handle );
 			return DefWindowProc( handle, message, wParam, lParam );
-		}
-		case WM_TIMER:
-		{
-			getThis( handle )->OnTimer();
-			return 0;
-		}
-		case WM_PAINT:
-		{
-			getThis( handle )->OnPaint();
-			return 0;
-		}
-		case WM_LBUTTONDOWN:
-		{
-			getThis( handle )->onLButtonDown();
-			return 0;
 		}
 		default:
 			return DefWindowProc( handle, message, wParam, lParam );

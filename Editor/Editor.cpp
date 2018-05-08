@@ -68,13 +68,18 @@ void CEditor::OnSize()
 	SetWindowPos( editControl.windowHandle, HWND_TOP, rectangle.left, rectangle.top, width, height, SWP_SHOWWINDOW );
 }
 
+void CEditor::OnClose()
+{
+	MessageBoxW( 0,  L"Are you sure that you would like to close the window?", L"Close", MB_OK );
+}
+
 LRESULT CEditor::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	switch( message ) {
 		case WM_DESTROY:
 		{
 			getThis( handle )->OnDestroy();
-			break;
+			return 0;
 		}
 		case WM_CREATE:
 		{
@@ -92,7 +97,7 @@ LRESULT CEditor::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lP
 			// Then, function failure will be indicated by a return value of zero and a GetLastError result that is nonzero."
 			SetLastError( 0 );
 			if( SetWindowLong( handle, GWLP_USERDATA, createParams ) == 0 && GetLastError() != 0 ) {
-				MessageBoxW( 0, std::to_wstring( GetLastError() ).c_str(), L"Error", NULL );
+				MessageBoxW( 0, std::to_wstring( GetLastError() ).c_str(), L"Error", MB_OK );
 				return FALSE;
 			}
 
@@ -104,6 +109,11 @@ LRESULT CEditor::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lP
 		{
 			getThis( handle )->OnSize();
 			return 0;
+		}
+		case WM_CLOSE:
+		{
+			getThis( handle )->OnClose();
+			return DefWindowProc( handle, message, wParam, lParam );;
 		}
 		default:
 			return DefWindowProc( handle, message, wParam, lParam );

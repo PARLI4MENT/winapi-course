@@ -19,6 +19,7 @@ protected:
 	void OnCreate();
 	void OnNCCreate( const HWND handle );
 	void OnSize();
+	void OnClose();
 
 private:
 	HWND windowHandle{};
