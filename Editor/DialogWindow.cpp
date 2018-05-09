@@ -13,7 +13,6 @@ void CDialogWindow::Create( HWND handle )
 void CDialogWindow::Show()
 {
 	if( windowHandle != NULL ) {
-		MessageBoxW( 0, std::to_wstring( reinterpret_cast<int>( this ) ).c_str(), L"1", MB_OK );
 		response = DialogBoxParam( GetModuleHandle( 0 ), MAKEINTRESOURCE( IDD_DIALOG1 ), windowHandle, dialogProc, reinterpret_cast<LPARAM>( this ) );
 	}
 }
@@ -32,9 +31,16 @@ void CDialogWindow::OnInitDialog( HWND handle )
 	windowHandle = handle;
 }
 
-bool CDialogWindow::OnCommand( WORD command )
+bool CDialogWindow::OnCommand( WORD command, WPARAM wParam )
 {
-	return false;
+	switch( command ) {
+		case IDOK:
+			return false;
+		case IDCANCEL:
+			return false;
+		default:
+			return true;
+	}
 }
 
 BOOL CDialogWindow::dialogProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
@@ -56,8 +62,7 @@ BOOL CDialogWindow::dialogProc( HWND handle, UINT message, WPARAM wParam, LPARAM
 		}
 		case WM_COMMAND:
 		{
-			MessageBoxW( 0, std::to_wstring( reinterpret_cast<int>( getThis( handle ) ) ).c_str(), L"2", MB_OK );
-			if( getThis( handle )->OnCommand( LOWORD( wParam ) ) ) {
+			if( getThis( handle )->OnCommand( LOWORD( wParam ), wParam ) ) {
 			} else {
 				EndDialog( handle, wParam );
 			}

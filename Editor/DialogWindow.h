@@ -13,7 +13,7 @@ public:
 	void Apply();
 
 	void OnInitDialog( HWND handle );
-	bool OnCommand( WORD command );
+	bool OnCommand( WORD command, WPARAM wParam );
 
 private:
 	HWND windowHandle{};
