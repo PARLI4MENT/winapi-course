@@ -73,7 +73,7 @@ void CEditorWindow::OnSize()
 bool CEditorWindow::OnClose()
 {
 	if( isEdited ) {
-		switch( MessageBoxW( 0, L"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ?", L"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", MB_YESNOCANCEL ) ) {
+		switch( MessageBoxW( 0, L"Сохранить изменения?", L"Закрыть", MB_YESNOCANCEL ) ) {
 			case IDYES:
 			{
 				const int length = static_cast<int>( SendMessage( editControl.windowHandle, WM_GETTEXTLENGTH, 0, 0 ) );
@@ -88,10 +88,13 @@ bool CEditorWindow::OnClose()
 				openFileName.lpstrFile[0] = '\0';
 				openFileName.nMaxFile = sizeof( name );
 
-				GetSaveFileName( &openFileName );
-				CFile file{ name };
-				if( file.Write( buffer, length ) != TRUE ) {
-					MessageBoxW( 0, L"пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ.", L"пїЅпїЅпїЅпїЅпїЅпїЅ", MB_OK );
+				if( GetSaveFileName( &openFileName ) ) {
+					CFile file{ name };
+					if( file.Write( buffer, length ) != TRUE ) {
+						MessageBoxW( 0, L"Не удалось записать в файл.", L"Ошибка", MB_OK );
+						return false;
+					}
+				} else {
 					return false;
 				}
 				return true;
@@ -139,7 +142,7 @@ LRESULT CEditorWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPA
 			// Then, function failure will be indicated by a return value of zero and a GetLastError result that is nonzero."
 			SetLastError( 0 );
 			if( SetWindowLong( handle, GWLP_USERDATA, createParams ) == 0 && GetLastError() != 0 ) {
-				MessageBoxW( 0, std::to_wstring( GetLastError() ).c_str(), L"пїЅпїЅпїЅпїЅпїЅпїЅ", MB_OK );
+				MessageBoxW( 0, std::to_wstring( GetLastError() ).c_str(), L"Ошибка", MB_OK );
 				return FALSE;
 			}
 
