@@ -179,7 +179,7 @@ LRESULT CEditorWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPA
 		}
 		case WM_CTLCOLOREDIT:
 		{
-			return reinterpret_cast<LRESULT>( getThis( handle )->OnCtlColorEdit( ( reinterpret_cast< HDC >( wParam ) ) ) );
+			return reinterpret_cast<LRESULT>( getThis( handle )->OnCtlColorEdit( reinterpret_cast< HDC >( wParam ) ) );
 		}
 		default:
 			return DefWindowProc( handle, message, wParam, lParam );

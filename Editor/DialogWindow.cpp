@@ -8,14 +8,14 @@
 
 void CDialogWindow::Create( HWND _windowHandle, CEditorWindow* _editor )
 {
-	windowHandle = _windowHandle;
+	parentWindowHandle = _windowHandle;
 	editor = _editor;
 }
 
 void CDialogWindow::Show()
 {
-	if( windowHandle != NULL ) {
-		response = DialogBoxParam( GetModuleHandle( NULL ), MAKEINTRESOURCE( IDD_DIALOG1 ), windowHandle, static_cast<DLGPROC>( dialogProc ), reinterpret_cast<LPARAM>( this ) );
+	if( parentWindowHandle != NULL ) {
+		response = DialogBoxParam( GetModuleHandle( NULL ), MAKEINTRESOURCE( IDD_DIALOG1 ), parentWindowHandle, static_cast<DLGPROC>( dialogProc ), reinterpret_cast<LPARAM>( this ) );
 	}
 }
 
@@ -26,48 +26,56 @@ bool CDialogWindow::IsOK()
 
 void CDialogWindow::Apply()
 {
-	editor->settings = settings;
+	editor->settings = newSettings;
 }
 
 void CDialogWindow::OnInitDialog( HWND handle )
 {
+	oldSettings = editor->settings;
 }
 
 bool CDialogWindow::OnCommand( WORD command, WPARAM wParam )
 {
-	// Return false iff dialog should be closed after command.
+	// Returns false iff dialog should be closed after command.
 	switch( command ) {
 		case IDC_BUTTON3:
 		{
 			CHOOSECOLORW colorData{};
 			colorData.lStructSize = sizeof( colorData );
-			colorData.hwndOwner = windowHandle;
-			colorData.rgbResult = settings.BackgroundColor;
+			colorData.hwndOwner = parentWindowHandle;
 			colorData.lpCustColors = customBackgroundColors;
 			colorData.Flags = CC_ANYCOLOR;
 			ChooseColor( static_cast<LPCHOOSECOLORW>( &colorData ) );
-			settings.BackgroundColor = colorData.rgbResult;
-			return true;
+			newSettings.BackgroundColor = colorData.rgbResult;
+			break;
 		}
 		case IDC_BUTTON4:
 		{
 			CHOOSECOLORW colorData{};
 			colorData.lStructSize = sizeof( colorData );
-			colorData.hwndOwner = windowHandle;
-			colorData.rgbResult = settings.FontColor;
+			colorData.hwndOwner = parentWindowHandle;
 			colorData.lpCustColors = customFontColors;
 			colorData.Flags = CC_ANYCOLOR;
 			ChooseColor( static_cast<LPCHOOSECOLORW>( &colorData ) );
-			settings.FontColor = colorData.rgbResult;
-			return true;
+			newSettings.FontColor = colorData.rgbResult;
+			break;
+		}
+		case IDC_CHECK1:
+		{
+			wysiwyg = IsDlgButtonChecked( parentWindowHandle, IDC_CHECK1 ) == BST_CHECKED;
+			break;
 		}
 		case IDOK:
+			editor->settings = newSettings;
 			return false;
 		case IDCANCEL:
+			editor->settings = oldSettings;
 			return false;
-		default:
-			return true;
 	}
+	if( wysiwyg ) {
+		editor->settings = newSettings;
+	}
+	return true;
 }
 
 BOOL CDialogWindow::dialogProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
@@ -89,8 +97,7 @@ BOOL CDialogWindow::dialogProc( HWND handle, UINT message, WPARAM wParam, LPARAM
 		}
 		case WM_COMMAND:
 		{
-			if( getThis( handle )->OnCommand( LOWORD( wParam ), wParam ) ) {
-			} else {
+			if( !getThis( handle )->OnCommand( LOWORD( wParam ), wParam ) ) {
 				EndDialog( handle, wParam );
 			}
 			return TRUE;

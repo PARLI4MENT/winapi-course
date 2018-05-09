@@ -20,13 +20,14 @@ public:
 	bool OnCommand( WORD command, WPARAM wParam );
 
 private:
-	HWND windowHandle{};
+	HWND parentWindowHandle{};
 	INT_PTR response{ IDCANCEL };
 	COLORREF customBackgroundColors[16]{};
 	COLORREF customFontColors[16]{};
-
 	CEditorWindow* editor{ nullptr };
-	CAppearanceSettings settings{};
+	CAppearanceSettings oldSettings{};
+	CAppearanceSettings newSettings{};
+	bool wysiwyg{ false };
 
 	static BOOL CALLBACK dialogProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );
 	static CDialogWindow* getThis( HWND handle );
