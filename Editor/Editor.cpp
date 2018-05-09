@@ -107,9 +107,10 @@ bool CEditor::OnClose()
 
 void CEditor::OnCommand( WPARAM wParam )
 {
-
-	if( HIWORD( wParam ) == EN_CHANGE ) {
+	auto command = HIWORD( wParam );
+	if( command == EN_CHANGE ) {
 		isEdited = true;
+	} else if( command == 0 &&  LOWORD( wParam ) == ID_VIEW_SETTINGS ) {
 	}
 }
 
