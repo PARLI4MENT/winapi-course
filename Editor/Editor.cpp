@@ -48,7 +48,6 @@ void CEditor::OnCreate()
 	const int width = rectangle.right - rectangle.left;
 	const int height = rectangle.bottom - rectangle.top;
 
-	CEditControl::Register();
 	editControl.Create( windowHandle, rectangle.left, rectangle.top, width, height );
 }
 
@@ -70,8 +69,16 @@ void CEditor::OnSize()
 
 void CEditor::OnClose()
 {
-	if( editControl.isEdited ) {
+	if( isEdited ) {
 		MessageBoxW( 0, L"Are you sure that you would like to close the window?", L"Close", MB_OK );
+	}
+}
+
+void CEditor::OnCommand( WPARAM wParam )
+{
+
+	if( HIWORD( wParam ) == EN_CHANGE ) {
+		isEdited = true;
 	}
 }
 
@@ -115,6 +122,11 @@ LRESULT CEditor::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lP
 		case WM_CLOSE:
 		{
 			getThis( handle )->OnClose();
+			return DefWindowProc( handle, message, wParam, lParam );
+		}
+		case WM_COMMAND:
+		{
+			getThis( handle )->OnCommand( wParam );
 			return DefWindowProc( handle, message, wParam, lParam );;
 		}
 		default:

@@ -20,10 +20,12 @@ protected:
 	void OnNCCreate( const HWND handle );
 	void OnSize();
 	void OnClose();
+	void OnCommand( WPARAM wParam );
 
 private:
 	HWND windowHandle{};
 	CEditControl editControl{};
+	bool isEdited{ false };
 
 	static LRESULT __stdcall windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );
 	static CEditor* getThis( HWND handle );
