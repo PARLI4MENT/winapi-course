@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 
+#include "DialogWindow.h"
 #include "EditControl.h"
 
 class CEditorWindow {
@@ -24,6 +25,7 @@ protected:
 private:
 	HWND windowHandle{};
 	CEditControl editControl{};
+	CDialogWindow dialogWindow{};
 	bool isEdited{ false };
 
 	static LRESULT __stdcall windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );

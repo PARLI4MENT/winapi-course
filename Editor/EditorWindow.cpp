@@ -53,6 +53,7 @@ void CEditorWindow::OnCreate()
 	const int height = rectangle.bottom - rectangle.top;
 
 	editControl.Create( windowHandle, rectangle.left, rectangle.top, width, height );
+	dialogWindow.Create( windowHandle );
 }
 
 void CEditorWindow::OnNCCreate( const HWND handle )
@@ -115,7 +116,7 @@ void CEditorWindow::OnCommand( WPARAM wParam )
 	if( command == EN_CHANGE ) {
 		isEdited = true;
 	} else if( command == 0 &&  LOWORD( wParam ) == ID_VIEW_SETTINGS ) {
-		CDialogWindow dialogWindow{ windowHandle };
+		dialogWindow.Show();
 		if( dialogWindow.IsOK() ) {
 			dialogWindow.Apply();
 		}
@@ -139,7 +140,7 @@ LRESULT CEditorWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPA
 		{
 			// lParam "A pointer to the CREATESTRUCT structure that contains information about the window being created.
 			// The members of CREATESTRUCT are identical to the parameters of the CreateWindowEx function."
-			auto createStructPtr = reinterpret_cast< CREATESTRUCT* >( lParam );
+			auto createStructPtr = reinterpret_cast<CREATESTRUCT*>( lParam );
 			auto createParams = reinterpret_cast<LONG>( createStructPtr->lpCreateParams );
 
 			// "...you should clear the last error information by calling SetLastError with 0 before calling SetWindowLong.
