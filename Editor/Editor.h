@@ -4,7 +4,6 @@
 
 #include "EditControl.h"
 
-
 class CEditor {
 public:
 	CEditor() = default;
@@ -19,7 +18,7 @@ protected:
 	void OnCreate();
 	void OnNCCreate( const HWND handle );
 	void OnSize();
-	void OnClose();
+	bool OnClose();
 	void OnCommand( WPARAM wParam );
 
 private:

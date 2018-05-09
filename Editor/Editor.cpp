@@ -1,4 +1,5 @@
 #include "Editor.h"
+#include "File.h"
 
 #include <cstdlib>
 #include <string>
@@ -25,7 +26,7 @@ bool CEditor::Register()
 bool CEditor::Create()
 {
 	// Set lpParam to this in order to get it from lpCreateParams when receive WM_NCCREATE.
-	return CreateWindowEx( 0, L"Editor", L"Editor", WS_OVERLAPPEDWINDOW,
+	return CreateWindowEx( 0, L"Editor", L"miv", WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
 }
 
@@ -67,11 +68,39 @@ void CEditor::OnSize()
 	SetWindowPos( editControl.windowHandle, HWND_TOP, rectangle.left, rectangle.top, width, height, SWP_SHOWWINDOW );
 }
 
-void CEditor::OnClose()
+bool CEditor::OnClose()
 {
 	if( isEdited ) {
-		MessageBoxW( 0, L"Are you sure that you would like to close the window?", L"Close", MB_OK );
+		switch( MessageBoxW( 0, L"Сохранить изменения?", L"Закрыть", MB_YESNOCANCEL ) ) {
+			case IDYES:
+			{
+				const int length = static_cast<int>( SendMessage( editControl.windowHandle, WM_GETTEXTLENGTH, 0, 0 ) );
+				wchar_t* buffer = new wchar_t[length + 1];
+				SendMessage( editControl.windowHandle, WM_GETTEXT, length + 1, reinterpret_cast<LPARAM>( buffer ) );
+
+				wchar_t name[MAX_PATH + 1];
+				OPENFILENAME openFileName{};
+				openFileName.lStructSize = sizeof( openFileName );
+				openFileName.hwndOwner = windowHandle;
+				openFileName.lpstrFile = name;
+				openFileName.lpstrFile[0] = '\0';
+				openFileName.nMaxFile = sizeof( name );
+
+				GetSaveFileName( &openFileName );
+				CFile file{ name };
+				if( file.Write( buffer, length ) != TRUE ) {
+					MessageBoxW( 0, L"Не удалось записать в файл.", L"Ошибка", MB_OK );
+					return false;
+				}
+				return true;
+			}
+			case IDNO:
+				return true;
+			case IDCANCEL:
+				return false;
+		}
 	}
+	return true;
 }
 
 void CEditor::OnCommand( WPARAM wParam )
@@ -106,7 +135,7 @@ LRESULT CEditor::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lP
 			// Then, function failure will be indicated by a return value of zero and a GetLastError result that is nonzero."
 			SetLastError( 0 );
 			if( SetWindowLong( handle, GWLP_USERDATA, createParams ) == 0 && GetLastError() != 0 ) {
-				MessageBoxW( 0, std::to_wstring( GetLastError() ).c_str(), L"Error", MB_OK );
+				MessageBoxW( 0, std::to_wstring( GetLastError() ).c_str(), L"Ошибка", MB_OK );
 				return FALSE;
 			}
 
@@ -121,8 +150,7 @@ LRESULT CEditor::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lP
 		}
 		case WM_CLOSE:
 		{
-			getThis( handle )->OnClose();
-			return DefWindowProc( handle, message, wParam, lParam );
+			return getThis( handle )->OnClose() ? DefWindowProc( handle, message, wParam, lParam ) : 0;
 		}
 		case WM_COMMAND:
 		{

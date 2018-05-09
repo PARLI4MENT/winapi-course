@@ -10,11 +10,11 @@ int wWinMain( HINSTANCE instanceHandle, HINSTANCE prevHandleInstance, LPWSTR com
 		CEditor editor{};
 
 		if( !editor.Register() ) {
-			throw std::wstring{ L"Cannot register a window class." };
+			throw std::wstring{ L"Не удалось зарегистрировать оконный класс." };
 		}
 
 		if( !editor.Create() ) {
-			throw std::wstring{ L"Cannot create a window." };
+			throw std::wstring{ L"Не удалось создать окно." };
 		}
 
 		editor.Show( windowShowMode );
@@ -25,9 +25,9 @@ int wWinMain( HINSTANCE instanceHandle, HINSTANCE prevHandleInstance, LPWSTR com
 			DispatchMessage( &message );
 		}
 	} catch( const std::wstring& errorMessage ) {
-		MessageBoxW( 0, errorMessage.c_str(), L"Error", MB_OK );
+		MessageBoxW( 0, errorMessage.c_str(), L"Ошибка", MB_OK );
 	} catch( ... ) {
-		MessageBoxW( 0, L"Unknown error", L"Error", MB_OK );
+		MessageBoxW( 0, L"Неизвестная ошибка.", L"Ошибка", MB_OK );
 	}
 
 	return 0;
