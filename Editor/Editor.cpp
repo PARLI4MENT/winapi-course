@@ -111,6 +111,7 @@ void CEditor::OnCommand( WPARAM wParam )
 	if( command == EN_CHANGE ) {
 		isEdited = true;
 	} else if( command == 0 &&  LOWORD( wParam ) == ID_VIEW_SETTINGS ) {
+		auto dialogBox = DialogBox( NULL, MAKEINTRESOURCE( IDD_DIALOG1 ), windowHandle, static_cast<DLGPROC>( dialogProc ) );
 	}
 }
 
@@ -163,10 +164,22 @@ LRESULT CEditor::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lP
 		default:
 			return DefWindowProc( handle, message, wParam, lParam );
 	}
-	return 0;
 }
 
 CEditor* CEditor::getThis( HWND handle )
 {
 	return reinterpret_cast<CEditor*>( GetWindowLong( handle, GWLP_USERDATA ) );
+}
+
+BOOL CEditor::dialogProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
+{
+	switch( message ) {
+		case WM_COMMAND:
+		{
+			auto command = LOWORD( wParam );
+			EndDialog( handle, wParam );
+			return TRUE;
+		}
+	}
+	return FALSE;
 }
