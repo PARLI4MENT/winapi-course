@@ -76,7 +76,7 @@ bool CDialogWindow::OnCommand( WORD command, WPARAM wParam )
 		}
 		case IDC_CHECK1:
 		{
-			wysiwyg = IsDlgButtonChecked( parentWindowHandle, IDC_CHECK1 ) == BST_CHECKED;
+			wysiwyg = IsDlgButtonChecked( windowHandle, IDC_CHECK1 ) == BST_CHECKED;
 			break;
 		}
 		case IDOK:
