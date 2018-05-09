@@ -1,19 +1,21 @@
 #include "DialogWindow.h"
+#include "EditorWindow.h"
 #include "resource.h"
 
 #include <Windows.h>
 
 #include <string>
 
-void CDialogWindow::Create( HWND handle )
+void CDialogWindow::Create( HWND _windowHandle, CEditorWindow* _editor )
 {
-	windowHandle = handle;
+	windowHandle = _windowHandle;
+	editor = _editor;
 }
 
 void CDialogWindow::Show()
 {
 	if( windowHandle != NULL ) {
-		response = DialogBoxParam( GetModuleHandle( 0 ), MAKEINTRESOURCE( IDD_DIALOG1 ), windowHandle, static_cast<DLGPROC>( dialogProc ), reinterpret_cast<LPARAM>( this ) );
+		response = DialogBoxParam( GetModuleHandle( NULL ), MAKEINTRESOURCE( IDD_DIALOG1 ), windowHandle, static_cast<DLGPROC>( dialogProc ), reinterpret_cast<LPARAM>( this ) );
 	}
 }
 
@@ -24,6 +26,7 @@ bool CDialogWindow::IsOK()
 
 void CDialogWindow::Apply()
 {
+	editor->settings = settings;
 }
 
 void CDialogWindow::OnInitDialog( HWND handle )
@@ -32,7 +35,32 @@ void CDialogWindow::OnInitDialog( HWND handle )
 
 bool CDialogWindow::OnCommand( WORD command, WPARAM wParam )
 {
+	// Return false iff dialog should be closed after command.
 	switch( command ) {
+		case IDC_BUTTON3:
+		{
+			CHOOSECOLORW colorData{};
+			colorData.lStructSize = sizeof( colorData );
+			colorData.hwndOwner = windowHandle;
+			colorData.rgbResult = settings.BackgroundColor;
+			colorData.lpCustColors = customBackgroundColors;
+			colorData.Flags = CC_ANYCOLOR;
+			ChooseColor( static_cast<LPCHOOSECOLORW>( &colorData ) );
+			settings.BackgroundColor = colorData.rgbResult;
+			return true;
+		}
+		case IDC_BUTTON4:
+		{
+			CHOOSECOLORW colorData{};
+			colorData.lStructSize = sizeof( colorData );
+			colorData.hwndOwner = windowHandle;
+			colorData.rgbResult = settings.FontColor;
+			colorData.lpCustColors = customFontColors;
+			colorData.Flags = CC_ANYCOLOR;
+			ChooseColor( static_cast<LPCHOOSECOLORW>( &colorData ) );
+			settings.FontColor = colorData.rgbResult;
+			return true;
+		}
 		case IDOK:
 			return false;
 		case IDCANCEL:

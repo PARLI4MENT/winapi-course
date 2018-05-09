@@ -2,8 +2,11 @@
 
 #include <Windows.h>
 
+#include "AppearanceSettings.h"
 #include "DialogWindow.h"
 #include "EditControl.h"
+
+class CDialogWindow;
 
 class CEditorWindow {
 public:
@@ -21,11 +24,15 @@ protected:
 	void OnSize();
 	bool OnClose();
 	void OnCommand( WPARAM wParam );
+	HBRUSH OnCtlColorEdit( HDC hDC );
 
 private:
+	friend CDialogWindow;
+
 	HWND windowHandle{};
 	CEditControl editControl{};
 	CDialogWindow dialogWindow{};
+	CAppearanceSettings settings{};
 	bool isEdited{ false };
 
 	static LRESULT __stdcall windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );

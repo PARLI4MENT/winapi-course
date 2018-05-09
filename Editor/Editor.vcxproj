@@ -115,6 +115,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AppearanceSettings.cpp" />
     <ClCompile Include="DialogWindow.cpp" />
     <ClCompile Include="EditorWindow.cpp" />
     <ClCompile Include="File.cpp" />
@@ -122,6 +123,7 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AppearanceSettings.h" />
     <ClInclude Include="DialogWindow.h" />
     <ClInclude Include="EditorWindow.h" />
     <ClInclude Include="File.h" />

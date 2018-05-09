@@ -53,7 +53,7 @@ void CEditorWindow::OnCreate()
 	const int height = rectangle.bottom - rectangle.top;
 
 	editControl.Create( windowHandle, rectangle.left, rectangle.top, width, height );
-	dialogWindow.Create( windowHandle );
+	dialogWindow.Create( windowHandle, this );
 }
 
 void CEditorWindow::OnNCCreate( const HWND handle )
@@ -123,6 +123,14 @@ void CEditorWindow::OnCommand( WPARAM wParam )
 	}
 }
 
+HBRUSH CEditorWindow::OnCtlColorEdit( HDC hDC )
+{
+	SetTextColor( hDC, settings.FontColor );
+	SetBkColor( hDC, settings.BackgroundColor );
+	settings.BackgroundBrush = CBrush( CreateSolidBrush( settings.BackgroundColor ) );
+	return settings.BackgroundBrush.BrushHandle;
+}
+
 LRESULT CEditorWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	switch( message ) {
@@ -168,6 +176,10 @@ LRESULT CEditorWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPA
 		{
 			getThis( handle )->OnCommand( wParam );
 			return DefWindowProc( handle, message, wParam, lParam );;
+		}
+		case WM_CTLCOLOREDIT:
+		{
+			return reinterpret_cast<LRESULT>( getThis( handle )->OnCtlColorEdit( ( reinterpret_cast< HDC >( wParam ) ) ) );
 		}
 		default:
 			return DefWindowProc( handle, message, wParam, lParam );
