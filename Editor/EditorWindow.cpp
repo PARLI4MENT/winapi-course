@@ -1,3 +1,4 @@
+#include "DialogWindow.h"
 #include "EditorWindow.h"
 #include "File.h"
 #include "resource.h"
@@ -114,7 +115,10 @@ void CEditorWindow::OnCommand( WPARAM wParam )
 	if( command == EN_CHANGE ) {
 		isEdited = true;
 	} else if( command == 0 &&  LOWORD( wParam ) == ID_VIEW_SETTINGS ) {
-		auto dialogBox = DialogBox( NULL, MAKEINTRESOURCE( IDD_DIALOG1 ), windowHandle, static_cast<DLGPROC>( dialogProc ) );
+		CDialogWindow dialogWindow{ windowHandle };
+		if( dialogWindow.IsOK() ) {
+			dialogWindow.Apply();
+		}
 	}
 }
 
@@ -172,17 +176,4 @@ LRESULT CEditorWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPA
 CEditorWindow* CEditorWindow::getThis( HWND handle )
 {
 	return reinterpret_cast<CEditorWindow*>( GetWindowLong( handle, GWLP_USERDATA ) );
-}
-
-BOOL CEditorWindow::dialogProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
-{
-	switch( message ) {
-		case WM_COMMAND:
-		{
-			auto command = LOWORD( wParam );
-			EndDialog( handle, wParam );
-			return TRUE;
-		}
-	}
-	return FALSE;
 }
