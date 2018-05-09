@@ -17,6 +17,8 @@ public:
 	bool Create();
 	void Show( int windowShowMode );
 
+	HWND GetDialogWindowHandle();
+
 protected:
 	void OnDestroy();
 	void OnCreate();

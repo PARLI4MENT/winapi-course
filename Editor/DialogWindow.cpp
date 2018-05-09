@@ -15,7 +15,12 @@ void CDialogWindow::Create( HWND _windowHandle, CEditorWindow* _editor )
 void CDialogWindow::Show()
 {
 	if( parentWindowHandle != NULL ) {
-		response = DialogBoxParam( GetModuleHandle( NULL ), MAKEINTRESOURCE( IDD_DIALOG1 ), parentWindowHandle, static_cast<DLGPROC>( dialogProc ), reinterpret_cast<LPARAM>( this ) );
+		if( isModal ) {
+			DialogBoxParam( GetModuleHandle( NULL ), MAKEINTRESOURCE( IDD_DIALOG1 ), parentWindowHandle, static_cast<DLGPROC>( dialogProc ), reinterpret_cast<LPARAM>( this ) );
+		} else {
+			CreateDialogParam( GetModuleHandle( NULL ), MAKEINTRESOURCE( IDD_DIALOG1 ), parentWindowHandle, static_cast<DLGPROC>( dialogProc ), reinterpret_cast<LPARAM>( this ) );
+			ShowWindow( windowHandle, SW_SHOW );
+		}
 	}
 }
 
@@ -31,6 +36,7 @@ void CDialogWindow::Apply()
 
 void CDialogWindow::OnInitDialog( HWND handle )
 {
+	windowHandle = handle;
 	oldSettings = editor->settings;
 }
 
@@ -40,24 +46,32 @@ bool CDialogWindow::OnCommand( WORD command, WPARAM wParam )
 	switch( command ) {
 		case IDC_BUTTON3:
 		{
-			CHOOSECOLORW colorData{};
-			colorData.lStructSize = sizeof( colorData );
-			colorData.hwndOwner = parentWindowHandle;
-			colorData.lpCustColors = customBackgroundColors;
-			colorData.Flags = CC_ANYCOLOR;
-			ChooseColor( static_cast<LPCHOOSECOLORW>( &colorData ) );
-			newSettings.BackgroundColor = colorData.rgbResult;
+			if( !isChoosingColor ) {
+				CHOOSECOLORW colorData{};
+				colorData.lStructSize = sizeof( colorData );
+				colorData.hwndOwner = parentWindowHandle;
+				colorData.lpCustColors = customBackgroundColors;
+				colorData.Flags = CC_ANYCOLOR;
+				isChoosingColor = true;
+				ChooseColor( static_cast< LPCHOOSECOLORW >( &colorData ) );
+				newSettings.BackgroundColor = colorData.rgbResult;
+				isChoosingColor = false;
+			}
 			break;
 		}
 		case IDC_BUTTON4:
 		{
-			CHOOSECOLORW colorData{};
-			colorData.lStructSize = sizeof( colorData );
-			colorData.hwndOwner = parentWindowHandle;
-			colorData.lpCustColors = customFontColors;
-			colorData.Flags = CC_ANYCOLOR;
-			ChooseColor( static_cast<LPCHOOSECOLORW>( &colorData ) );
-			newSettings.FontColor = colorData.rgbResult;
+			if( !isChoosingColor ) {
+				CHOOSECOLORW colorData{};
+				colorData.lStructSize = sizeof( colorData );
+				colorData.hwndOwner = parentWindowHandle;
+				colorData.lpCustColors = customFontColors;
+				colorData.Flags = CC_ANYCOLOR;
+				isChoosingColor = true;
+				ChooseColor( static_cast< LPCHOOSECOLORW >( &colorData ) );
+				newSettings.FontColor = colorData.rgbResult;
+				isChoosingColor = false;
+			}
 			break;
 		}
 		case IDC_CHECK1:
@@ -100,7 +114,7 @@ BOOL CDialogWindow::dialogProc( HWND handle, UINT message, WPARAM wParam, LPARAM
 			if( !getThis( handle )->OnCommand( LOWORD( wParam ), wParam ) ) {
 				EndDialog( handle, wParam );
 			}
-			return TRUE;
+			return FALSE;
 		}
 	}
 	return FALSE;

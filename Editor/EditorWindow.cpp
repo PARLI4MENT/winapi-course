@@ -39,6 +39,11 @@ void CEditorWindow::Show( int windowShowMode )
 	editControl.Show( windowShowMode );
 }
 
+HWND CEditorWindow::GetDialogWindowHandle()
+{
+	return dialogWindow.windowHandle;
+}
+
 void CEditorWindow::OnDestroy()
 {
 	PostQuitMessage( 0 );
@@ -117,9 +122,6 @@ void CEditorWindow::OnCommand( WPARAM wParam )
 		isEdited = true;
 	} else if( command == 0 &&  LOWORD( wParam ) == ID_VIEW_SETTINGS ) {
 		dialogWindow.Show();
-		if( dialogWindow.IsOK() ) {
-			dialogWindow.Apply();
-		}
 	}
 }
 
@@ -179,7 +181,7 @@ LRESULT CEditorWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPA
 		}
 		case WM_CTLCOLOREDIT:
 		{
-			return reinterpret_cast<LRESULT>( getThis( handle )->OnCtlColorEdit( reinterpret_cast< HDC >( wParam ) ) );
+			return reinterpret_cast<LRESULT>( getThis( handle )->OnCtlColorEdit( reinterpret_cast<HDC>( wParam ) ) );
 		}
 		default:
 			return DefWindowProc( handle, message, wParam, lParam );

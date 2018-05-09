@@ -21,8 +21,10 @@ int wWinMain( HINSTANCE instanceHandle, HINSTANCE prevHandleInstance, LPWSTR com
 
 		MSG message{};
 		while( GetMessage( &message, ( HWND ) NULL, 0, 0 ) > 0 ) {
-			TranslateMessage( &message );
-			DispatchMessage( &message );
+			if( IsDialogMessage( editor.GetDialogWindowHandle(), &message ) == FALSE ) {
+				TranslateMessage( &message );
+				DispatchMessage( &message );
+			}
 		}
 	} catch( const std::wstring& errorMessage ) {
 		MessageBoxW( 0, errorMessage.c_str(), L"Ошибка", MB_OK );

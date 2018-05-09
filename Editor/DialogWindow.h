@@ -20,7 +20,11 @@ public:
 	bool OnCommand( WORD command, WPARAM wParam );
 
 private:
+	friend CEditorWindow;
+	
+	static const bool isModal{ false };
 	HWND parentWindowHandle{};
+	HWND windowHandle{};
 	INT_PTR response{ IDCANCEL };
 	COLORREF customBackgroundColors[16]{};
 	COLORREF customFontColors[16]{};
@@ -28,6 +32,7 @@ private:
 	CAppearanceSettings oldSettings{};
 	CAppearanceSettings newSettings{};
 	bool wysiwyg{ false };
+	bool isChoosingColor{ false };
 
 	static BOOL CALLBACK dialogProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );
 	static CDialogWindow* getThis( HWND handle );
