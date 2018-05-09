@@ -1,5 +1,6 @@
 #include "Editor.h"
 #include "File.h"
+#include "resource.h"
 
 #include <cstdlib>
 #include <string>
@@ -19,6 +20,7 @@ bool CEditor::Register()
 	windowClass.lpfnWndProc = windowProc;
 	windowClass.hInstance = GetModuleHandle( NULL );
 	windowClass.lpszClassName = L"Editor";
+	windowClass.lpszMenuName = MAKEINTRESOURCE( IDR_MENU1 );
 
 	return RegisterClassEx( &windowClass ) != 0;
 }
