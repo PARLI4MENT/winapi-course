@@ -4,10 +4,10 @@
 
 #include "EditControl.h"
 
-class CEditor {
+class CEditorWindow {
 public:
-	CEditor() = default;
-	~CEditor();
+	CEditorWindow() = default;
+	~CEditorWindow();
 
 	static bool Register();
 	bool Create();
@@ -27,6 +27,6 @@ private:
 	bool isEdited{ false };
 
 	static LRESULT __stdcall windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );
-	static CEditor* getThis( HWND handle );
+	static CEditorWindow* getThis( HWND handle );
 	static BOOL CALLBACK dialogProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );
 };

@@ -1,13 +1,13 @@
 #include <Windows.h>
 
-#include "Editor.h"
+#include "EditorWindow.h"
 
 #include <string>
 
 int wWinMain( HINSTANCE instanceHandle, HINSTANCE prevHandleInstance, LPWSTR commandLine, int windowShowMode )
 {
 	try {
-		CEditor editor{};
+		CEditorWindow editor{};
 
 		if( !editor.Register() ) {
 			throw std::wstring{ L"Ќе удалось зарегистрировать оконный класс." };

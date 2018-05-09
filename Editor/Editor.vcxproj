@@ -115,15 +115,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DialogWindow.cpp" />
+    <ClCompile Include="EditorWindow.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="EditControl.cpp" />
-    <ClCompile Include="Editor.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DialogWindow.h" />
+    <ClInclude Include="EditorWindow.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="EditControl.h" />
-    <ClInclude Include="Editor.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

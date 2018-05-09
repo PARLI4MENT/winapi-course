@@ -1,18 +1,18 @@
-#include "Editor.h"
+#include "EditorWindow.h"
 #include "File.h"
 #include "resource.h"
 
 #include <cstdlib>
 #include <string>
 
-CEditor::~CEditor()
+CEditorWindow::~CEditorWindow()
 {
 	if( windowHandle != NULL ) {
 		CloseHandle( windowHandle );
 	}
 }
 
-bool CEditor::Register()
+bool CEditorWindow::Register()
 {
 	WNDCLASSEX windowClass{};
 
@@ -25,25 +25,25 @@ bool CEditor::Register()
 	return RegisterClassEx( &windowClass ) != 0;
 }
 
-bool CEditor::Create()
+bool CEditorWindow::Create()
 {
 	// Set lpParam to this in order to get it from lpCreateParams when receive WM_NCCREATE.
 	return CreateWindowEx( 0, L"Editor", L"miv", WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
 }
 
-void CEditor::Show( int windowShowMode )
+void CEditorWindow::Show( int windowShowMode )
 {
 	ShowWindow( windowHandle, windowShowMode );
 	editControl.Show( windowShowMode );
 }
 
-void CEditor::OnDestroy()
+void CEditorWindow::OnDestroy()
 {
 	PostQuitMessage( 0 );
 }
 
-void CEditor::OnCreate()
+void CEditorWindow::OnCreate()
 {
 	RECT rectangle{};
 	GetClientRect( windowHandle, &rectangle );
@@ -54,12 +54,12 @@ void CEditor::OnCreate()
 	editControl.Create( windowHandle, rectangle.left, rectangle.top, width, height );
 }
 
-void CEditor::OnNCCreate( const HWND handle )
+void CEditorWindow::OnNCCreate( const HWND handle )
 {
 	windowHandle = handle;
 }
 
-void CEditor::OnSize()
+void CEditorWindow::OnSize()
 {
 	RECT rectangle{};
 	GetClientRect( windowHandle, &rectangle );
@@ -70,10 +70,10 @@ void CEditor::OnSize()
 	SetWindowPos( editControl.windowHandle, HWND_TOP, rectangle.left, rectangle.top, width, height, SWP_SHOWWINDOW );
 }
 
-bool CEditor::OnClose()
+bool CEditorWindow::OnClose()
 {
 	if( isEdited ) {
-		switch( MessageBoxW( 0, L"Сохранить изменения?", L"Закрыть", MB_YESNOCANCEL ) ) {
+		switch( MessageBoxW( 0, L"пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ?", L"пїЅпїЅпїЅпїЅпїЅпїЅпїЅ", MB_YESNOCANCEL ) ) {
 			case IDYES:
 			{
 				const int length = static_cast<int>( SendMessage( editControl.windowHandle, WM_GETTEXTLENGTH, 0, 0 ) );
@@ -91,7 +91,7 @@ bool CEditor::OnClose()
 				GetSaveFileName( &openFileName );
 				CFile file{ name };
 				if( file.Write( buffer, length ) != TRUE ) {
-					MessageBoxW( 0, L"Не удалось записать в файл.", L"Ошибка", MB_OK );
+					MessageBoxW( 0, L"пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ.", L"пїЅпїЅпїЅпїЅпїЅпїЅ", MB_OK );
 					return false;
 				}
 				return true;
@@ -105,7 +105,7 @@ bool CEditor::OnClose()
 	return true;
 }
 
-void CEditor::OnCommand( WPARAM wParam )
+void CEditorWindow::OnCommand( WPARAM wParam )
 {
 	auto command = HIWORD( wParam );
 	if( command == EN_CHANGE ) {
@@ -115,7 +115,7 @@ void CEditor::OnCommand( WPARAM wParam )
 	}
 }
 
-LRESULT CEditor::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
+LRESULT CEditorWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	switch( message ) {
 		case WM_DESTROY:
@@ -139,11 +139,11 @@ LRESULT CEditor::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lP
 			// Then, function failure will be indicated by a return value of zero and a GetLastError result that is nonzero."
 			SetLastError( 0 );
 			if( SetWindowLong( handle, GWLP_USERDATA, createParams ) == 0 && GetLastError() != 0 ) {
-				MessageBoxW( 0, std::to_wstring( GetLastError() ).c_str(), L"Ошибка", MB_OK );
+				MessageBoxW( 0, std::to_wstring( GetLastError() ).c_str(), L"пїЅпїЅпїЅпїЅпїЅпїЅ", MB_OK );
 				return FALSE;
 			}
 
-			auto actualThis = reinterpret_cast<CEditor*>( createParams );
+			auto actualThis = reinterpret_cast<CEditorWindow*>( createParams );
 			actualThis->OnNCCreate( handle );
 			return DefWindowProc( handle, message, wParam, lParam );
 		}
@@ -166,12 +166,12 @@ LRESULT CEditor::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lP
 	}
 }
 
-CEditor* CEditor::getThis( HWND handle )
+CEditorWindow* CEditorWindow::getThis( HWND handle )
 {
-	return reinterpret_cast<CEditor*>( GetWindowLong( handle, GWLP_USERDATA ) );
+	return reinterpret_cast<CEditorWindow*>( GetWindowLong( handle, GWLP_USERDATA ) );
 }
 
-BOOL CEditor::dialogProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
+BOOL CEditorWindow::dialogProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	switch( message ) {
 		case WM_COMMAND:

@@ -2,10 +2,10 @@
 
 #include <Windows.h>
 
-class CEditor;
+class CEditorWindow;
 
 class CEditControl {
-	friend CEditor;
+	friend CEditorWindow;
 
 public:
 	CEditControl() = default;
