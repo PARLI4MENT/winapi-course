@@ -13,7 +13,7 @@ void CDialogWindow::Create( HWND handle )
 void CDialogWindow::Show()
 {
 	if( windowHandle != NULL ) {
-		response = DialogBoxParam( GetModuleHandle( 0 ), MAKEINTRESOURCE( IDD_DIALOG1 ), windowHandle, dialogProc, reinterpret_cast<LPARAM>( this ) );
+		response = DialogBoxParam( GetModuleHandle( 0 ), MAKEINTRESOURCE( IDD_DIALOG1 ), windowHandle, static_cast<DLGPROC>( dialogProc ), reinterpret_cast<LPARAM>( this ) );
 	}
 }
 
@@ -28,7 +28,6 @@ void CDialogWindow::Apply()
 
 void CDialogWindow::OnInitDialog( HWND handle )
 {
-	windowHandle = handle;
 }
 
 bool CDialogWindow::OnCommand( WORD command, WPARAM wParam )
