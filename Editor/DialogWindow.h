@@ -21,7 +21,7 @@ public:
 
 private:
 	friend CEditorWindow;
-	
+
 	static const bool isModal{ false };
 	HWND parentWindowHandle{};
 	HWND windowHandle{};
@@ -32,7 +32,6 @@ private:
 	CAppearanceSettings oldSettings{};
 	CAppearanceSettings newSettings{};
 	bool wysiwyg{ false };
-	bool isChoosingColor{ false };
 
 	static BOOL CALLBACK dialogProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );
 	static CDialogWindow* getThis( HWND handle );

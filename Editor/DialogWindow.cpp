@@ -46,32 +46,24 @@ bool CDialogWindow::OnCommand( WORD command, WPARAM wParam )
 	switch( command ) {
 		case IDC_BUTTON3:
 		{
-			if( !isChoosingColor ) {
-				CHOOSECOLORW colorData{};
-				colorData.lStructSize = sizeof( colorData );
-				colorData.hwndOwner = parentWindowHandle;
-				colorData.lpCustColors = customBackgroundColors;
-				colorData.Flags = CC_ANYCOLOR;
-				isChoosingColor = true;
-				ChooseColor( static_cast< LPCHOOSECOLORW >( &colorData ) );
-				newSettings.BackgroundColor = colorData.rgbResult;
-				isChoosingColor = false;
-			}
+			CHOOSECOLORW colorData{};
+			colorData.lStructSize = sizeof( colorData );
+			colorData.hwndOwner = windowHandle;
+			colorData.lpCustColors = customBackgroundColors;
+			colorData.Flags = CC_ANYCOLOR;
+			ChooseColor( static_cast< LPCHOOSECOLORW >( &colorData ) );
+			newSettings.BackgroundColor = colorData.rgbResult;
 			break;
 		}
 		case IDC_BUTTON4:
 		{
-			if( !isChoosingColor ) {
-				CHOOSECOLORW colorData{};
-				colorData.lStructSize = sizeof( colorData );
-				colorData.hwndOwner = parentWindowHandle;
-				colorData.lpCustColors = customFontColors;
-				colorData.Flags = CC_ANYCOLOR;
-				isChoosingColor = true;
-				ChooseColor( static_cast< LPCHOOSECOLORW >( &colorData ) );
-				newSettings.FontColor = colorData.rgbResult;
-				isChoosingColor = false;
-			}
+			CHOOSECOLORW colorData{};
+			colorData.lStructSize = sizeof( colorData );
+			colorData.hwndOwner = windowHandle;
+			colorData.lpCustColors = customFontColors;
+			colorData.Flags = CC_ANYCOLOR;
+			ChooseColor( static_cast< LPCHOOSECOLORW >( &colorData ) );
+			newSettings.FontColor = colorData.rgbResult;
 			break;
 		}
 		case IDC_CHECK1:
@@ -80,14 +72,24 @@ bool CDialogWindow::OnCommand( WORD command, WPARAM wParam )
 			break;
 		}
 		case IDOK:
+		{
+			InvalidateRect( editor->editControl.windowHandle, NULL, TRUE );
 			editor->settings = newSettings;
 			return false;
+		}
 		case IDCANCEL:
+		{
+			InvalidateRect( editor->editControl.windowHandle, NULL, TRUE );
 			editor->settings = oldSettings;
 			return false;
+		}
 	}
 	if( wysiwyg ) {
+		InvalidateRect( editor->editControl.windowHandle, NULL, TRUE );
 		editor->settings = newSettings;
+	} else {
+		InvalidateRect( editor->editControl.windowHandle, NULL, TRUE );
+		editor->settings = oldSettings;
 	}
 	return true;
 }

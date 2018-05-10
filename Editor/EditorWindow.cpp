@@ -129,8 +129,9 @@ HBRUSH CEditorWindow::OnCtlColorEdit( HDC hDC )
 {
 	SetTextColor( hDC, settings.FontColor );
 	SetBkColor( hDC, settings.BackgroundColor );
+	SetDCBrushColor( hDC, settings.BackgroundColor );
 	settings.BackgroundBrush = CBrush( CreateSolidBrush( settings.BackgroundColor ) );
-	return settings.BackgroundBrush.BrushHandle;
+	return static_cast<HBRUSH>( GetStockObject( DC_BRUSH ) );
 }
 
 LRESULT CEditorWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )

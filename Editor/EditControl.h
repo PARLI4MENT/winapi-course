@@ -3,9 +3,9 @@
 #include <Windows.h>
 
 class CEditorWindow;
+class CDialogWindow;
 
 class CEditControl {
-	friend CEditorWindow;
 
 public:
 	CEditControl() = default;
@@ -15,5 +15,8 @@ public:
 	void Show( int windowShowMode );
 
 private:
+	friend CEditorWindow;
+	friend CDialogWindow;
+
 	HWND windowHandle{};
 };
