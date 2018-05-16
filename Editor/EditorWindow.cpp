@@ -35,6 +35,7 @@ bool CEditorWindow::Create()
 
 void CEditorWindow::Show( int windowShowMode )
 {
+	dialogWindow.applySettings( settings );
 	ShowWindow( windowHandle, windowShowMode );
 	editControl.Show( windowShowMode );
 }
@@ -130,7 +131,6 @@ HBRUSH CEditorWindow::OnCtlColorEdit( HDC hDC )
 	SetTextColor( hDC, settings.FontColor );
 	SetBkColor( hDC, settings.BackgroundColor );
 	SetDCBrushColor( hDC, settings.BackgroundColor );
-	settings.BackgroundBrush = CBrush( CreateSolidBrush( settings.BackgroundColor ) );
 	return static_cast<HBRUSH>( GetStockObject( DC_BRUSH ) );
 }
 

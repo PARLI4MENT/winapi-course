@@ -14,10 +14,10 @@ public:
 	void Show();
 
 	bool IsOK();
-	void Apply();
 
 	void OnInitDialog( HWND handle );
 	bool OnCommand( WORD command, WPARAM wParam );
+	void OnHScroll( LPARAM lParam );
 
 private:
 	friend CEditorWindow;
@@ -33,6 +33,9 @@ private:
 	CAppearanceSettings newSettings{};
 	bool wysiwyg{ false };
 
+	void chooseColor( COLORREF* customColors, COLORREF& newColor );
+	void applySettings( CAppearanceSettings& settings );
+	void applySettingsDependOnWysiwyg();
 	static BOOL CALLBACK dialogProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );
 	static CDialogWindow* getThis( HWND handle );
 };
