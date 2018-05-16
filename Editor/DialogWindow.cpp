@@ -123,6 +123,8 @@ void CDialogWindow::applySettings( CAppearanceSettings& settings )
 	logFont.lfHeight = static_cast<LONG>( editor->settings.FontSize );
 	editor->settings.Font = CreateFontIndirect( &logFont );
 	SendMessage( editor->editControl.windowHandle, WM_SETFONT, reinterpret_cast<WPARAM>( editor->settings.Font ), TRUE );
+
+	SetLayeredWindowAttributes( editor->windowHandle, RGB( 0, 0, 0 ), 255 - editor->settings.Opacity, LWA_ALPHA | LWA_COLORKEY );
 }
 
 void CDialogWindow::applySettingsDependOnWysiwyg()

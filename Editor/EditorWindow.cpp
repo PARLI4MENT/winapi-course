@@ -29,7 +29,7 @@ bool CEditorWindow::Register()
 bool CEditorWindow::Create()
 {
 	// Set lpParam to this in order to get it from lpCreateParams when receive WM_NCCREATE.
-	return CreateWindowEx( 0, L"Editor", L"miv", WS_OVERLAPPEDWINDOW,
+	return CreateWindowEx( WS_EX_LAYERED, L"Editor", L"miv", WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
 }
 
