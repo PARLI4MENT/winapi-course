@@ -13,11 +13,11 @@ public:
 	void Create( HWND _windowHandle, CEditorWindow* _editor );
 	void Show();
 
-	bool IsOK();
-
+protected:
 	void OnInitDialog( HWND handle );
 	bool OnCommand( WORD command, WPARAM wParam );
 	void OnHScroll( LPARAM lParam );
+	void OnDestroy();
 
 private:
 	friend CEditorWindow;

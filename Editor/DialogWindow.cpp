@@ -25,11 +25,6 @@ void CDialogWindow::Show()
 	}
 }
 
-bool CDialogWindow::IsOK()
-{
-	return response == IDOK;
-}
-
 void CDialogWindow::OnInitDialog( HWND handle )
 {
 	windowHandle = handle;
@@ -98,15 +93,25 @@ void CDialogWindow::OnHScroll( LPARAM lParam )
 	applySettingsDependOnWysiwyg();
 }
 
+void CDialogWindow::OnDestroy()
+{
+	if( isModal ) {
+		EndDialog( windowHandle, NULL );
+	} else {
+		DestroyWindow( windowHandle );
+	}
+}
+
 void CDialogWindow::chooseColor( COLORREF* customColors, COLORREF& newColor )
 {
 	CHOOSECOLORW colorData{};
 	colorData.lStructSize = sizeof( colorData );
 	colorData.hwndOwner = windowHandle;
 	colorData.lpCustColors = customColors;
-	colorData.Flags = CC_ANYCOLOR;
-	ChooseColor( static_cast< LPCHOOSECOLORW >( &colorData ) );
-	newColor = colorData.rgbResult;
+	colorData.Flags = CC_SOLIDCOLOR;
+	if( ChooseColor( static_cast< LPCHOOSECOLORW >( &colorData ) ) != FALSE ) {
+		newColor = colorData.rgbResult;
+	}
 }
 
 void CDialogWindow::applySettings( CAppearanceSettings& settings )
@@ -121,10 +126,11 @@ void CDialogWindow::applySettings( CAppearanceSettings& settings )
 	LOGFONT logFont{};
 	GetObject( font, sizeof( LOGFONT ), reinterpret_cast<LPVOID>( &logFont ) );
 	logFont.lfHeight = static_cast<LONG>( editor->settings.FontSize );
+
 	editor->settings.Font = CreateFontIndirect( &logFont );
 	SendMessage( editor->editControl.windowHandle, WM_SETFONT, reinterpret_cast<WPARAM>( editor->settings.Font ), TRUE );
 
-	SetLayeredWindowAttributes( editor->windowHandle, RGB( 0, 0, 0 ), 255 - editor->settings.Opacity, LWA_ALPHA | LWA_COLORKEY );
+	SetLayeredWindowAttributes( editor->windowHandle, RGB( 0, 0, 0 ), 255 - editor->settings.Opacity, LWA_ALPHA );
 }
 
 void CDialogWindow::applySettingsDependOnWysiwyg()
@@ -165,6 +171,11 @@ BOOL CDialogWindow::dialogProc( HWND handle, UINT message, WPARAM wParam, LPARAM
 			getThis( handle )->OnHScroll( lParam );
 			return TRUE;
 
+		}
+		case WM_DESTROY:
+		{
+			getThis( handle )->OnDestroy();
+			return TRUE;
 		}
 	}
 	return FALSE;
