@@ -32,8 +32,8 @@ bool CMainWindow::Create()
 void CMainWindow::Show( int windowShowMode )
 {
 	ShowWindow( windowHandle, windowShowMode );
-	for( int i = 0; i < rowsCount; ++i ) {
-		for( int j = 0; j < columnsCount; ++j ) {
+	for( int i = 0; i < degree; ++i ) {
+		for( int j = 0; j < degree; ++j ) {
 			digitWindows[i][j].Show( windowShowMode );
 		}
 	}
@@ -49,12 +49,12 @@ void CMainWindow::OnCreate()
 	RECT rectangle{};
 	GetClientRect( windowHandle, &rectangle );
 
-	const int width = ( rectangle.right - rectangle.left ) / columnsCount;
-	const int height = ( rectangle.bottom - rectangle.top ) / rowsCount;
+	const int width = ( rectangle.right - rectangle.left ) / degree;
+	const int height = ( rectangle.bottom - rectangle.top ) / degree;
 
 	CDigitWindow::Register();
-	for( int i = 0; i < rowsCount; ++i ) {
-		for( int j = 0; j < columnsCount; ++j ) {
+	for( int i = 0; i < degree; ++i ) {
+		for( int j = 0; j < degree; ++j ) {
 			const int left = rectangle.left + j * width;
 			const int top = rectangle.top + i * height;
 
@@ -66,6 +66,15 @@ void CMainWindow::OnCreate()
 void CMainWindow::OnNCCreate( const HWND handle )
 {
 	windowHandle = handle;
+
+	RECT rectangle{};
+	GetWindowRect( windowHandle, &rectangle );
+
+	const int heigth = rectangle.bottom - rectangle.top;
+	const int width = rectangle.right - rectangle.left;
+	const int size = min( heigth, width );
+
+	SetWindowPos( windowHandle, HWND_TOP, rectangle.left, rectangle.top, size, size, SWP_SHOWWINDOW );
 }
 
 void CMainWindow::OnSize()
@@ -73,11 +82,11 @@ void CMainWindow::OnSize()
 	RECT rectangle{};
 	GetClientRect( windowHandle, &rectangle );
 
-	const int width = ( rectangle.right - rectangle.left ) / columnsCount;
-	const int height = ( rectangle.bottom - rectangle.top ) / rowsCount;
+	const int width = ( rectangle.right - rectangle.left ) / degree;
+	const int height = ( rectangle.bottom - rectangle.top ) / degree;
 
-	for( int i = 0; i < rowsCount; ++i ) {
-		for( int j = 0; j < columnsCount; ++j ) {
+	for( int i = 0; i < degree; ++i ) {
+		for( int j = 0; j < degree; ++j ) {
 			const int left = rectangle.left + j * width;
 			const int top = rectangle.top + i * height;
 
@@ -88,9 +97,9 @@ void CMainWindow::OnSize()
 
 void CMainWindow::OnSizing( WPARAM wParam, RECT* rect )
 {
-	auto heigth = rect->bottom - rect->top;
-	auto width = rect->right - rect->left;
-	auto size = min( heigth, width );
+	const int heigth = rect->bottom - rect->top;
+	const int width = rect->right - rect->left;
+	const int size = min( heigth, width );
 
 	switch( wParam ) {
 		case WMSZ_BOTTOM:

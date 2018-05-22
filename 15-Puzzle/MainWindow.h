@@ -24,9 +24,8 @@ protected:
 
 private:
 	HWND windowHandle{};
-	const static int rowsCount = 4;
-	const static int columnsCount = 4;
-	std::array<std::array<CDigitWindow, columnsCount>, rowsCount> digitWindows{};
+	const static int degree = 4;
+	std::array<std::array<CDigitWindow, degree>, degree> digitWindows{};
 
 	static LRESULT __stdcall windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );
 	static CMainWindow* getThis( HWND handle );
