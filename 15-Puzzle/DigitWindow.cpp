@@ -22,8 +22,9 @@ bool CDigitWindow::Register()
 	return RegisterClassEx( &windowClass ) != 0;
 }
 
-bool CDigitWindow::Create( HWND parentWinwowHandle, int left, int top, int width, int heigth )
+bool CDigitWindow::Create( HWND parentWinwowHandle, int left, int top, int width, int heigth, int _digit )
 {
+	digit = _digit;
 	return CreateWindowEx( 0, L"DigitWindow", L"DigitWindow", WS_CHILD | WS_BORDER,
 		left, top, width, heigth, parentWinwowHandle, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
 }
@@ -45,6 +46,17 @@ void CDigitWindow::OnCreate()
 void CDigitWindow::OnNCCreate( const HWND handle )
 {
 	windowHandle = handle;
+}
+
+void CDigitWindow::OnPaint()
+{
+	PAINTSTRUCT paintStruct{};
+	HDC paintDC = BeginPaint( windowHandle, &paintStruct );
+	HDC compatibleDC = CreateCompatibleDC( paintDC );
+	RECT rectangle{};
+
+	GetClientRect( windowHandle, &rectangle );
+
 }
 
 void CDigitWindow::onLButtonDown()
