@@ -17,6 +17,7 @@ bool CDigitWindow::Register()
 	windowClass.cbSize = sizeof( windowClass );
 	windowClass.lpfnWndProc = windowProc;
 	windowClass.hInstance = GetModuleHandle( NULL );
+	windowClass.hbrBackground = static_cast<HBRUSH>( GetStockObject( WHITE_BRUSH ) );
 	windowClass.lpszClassName = L"DigitWindow";
 
 	return RegisterClassEx( &windowClass ) != 0;
@@ -52,14 +53,13 @@ void CDigitWindow::OnPaint()
 {
 	PAINTSTRUCT paintStruct{};
 	HDC paintDC = BeginPaint( windowHandle, &paintStruct );
-	HDC compatibleDC = CreateCompatibleDC( paintDC );
 	RECT rectangle{};
-
 	GetClientRect( windowHandle, &rectangle );
+	DrawTextEx( paintDC, const_cast<LPWSTR>( std::to_wstring( digit ).c_str() ), -1, &rectangle, DT_CENTER | DT_VCENTER | DT_SINGLELINE, NULL );
+	EndPaint( windowHandle, &paintStruct );
+};
 
-}
-
-void CDigitWindow::onLButtonDown()
+void CDigitWindow::OnLButtonDown()
 {
 	SetFocus( windowHandle );
 }
@@ -92,9 +92,14 @@ LRESULT CDigitWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPAR
 			actualThis->OnNCCreate( handle );
 			return DefWindowProc( handle, message, wParam, lParam );
 		}
+		case WM_PAINT:
+		{
+			getThis( handle )->OnPaint();
+			return 0;
+		}
 		case WM_LBUTTONDOWN:
 		{
-			getThis( handle )->onLButtonDown();
+			getThis( handle )->OnLButtonDown();
 			return 0;
 		}
 		default:

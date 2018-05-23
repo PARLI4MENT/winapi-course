@@ -58,8 +58,9 @@ void CMainWindow::OnCreate()
 		for( int j = 0; j < degree; ++j ) {
 			const int left = rectangle.left + j * width;
 			const int top = rectangle.top + i * height;
+			const int digit = ( i * degree + j + 1 ) % ( degree * degree );
 
-			digitWindows[i][j].Create( windowHandle, left, top, width, height );
+			digitWindows[i][j].Create( windowHandle, left, top, width, height, digit );
 		}
 	}
 }
@@ -94,6 +95,8 @@ void CMainWindow::OnSize()
 			SetWindowPos( digitWindows[i][j].windowHandle, HWND_TOP, left, top, width, height, SWP_SHOWWINDOW );
 		}
 	}
+
+	InvalidateRect( windowHandle, &rectangle, TRUE );
 }
 
 void CMainWindow::OnSizing( WPARAM wParam, RECT* rect )

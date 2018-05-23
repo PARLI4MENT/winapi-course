@@ -20,7 +20,7 @@ protected:
 	void OnCreate();
 	void OnNCCreate( const HWND handle );
 	void OnPaint();
-	void onLButtonDown();
+	void OnLButtonDown();
 
 private:
 	HWND windowHandle{};
