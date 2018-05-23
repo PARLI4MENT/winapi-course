@@ -26,8 +26,8 @@ bool CMainWindow::Register()
 
 bool CMainWindow::Create()
 {
-	return CreateWindowEx( 0, L"15-Puzzle", L"15-Puzzle", WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
+	return CreateWindowEx( 0, L"15-Puzzle", L"15-Puzzle", WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME,
+		CW_USEDEFAULT, CW_USEDEFAULT, 240, 240, NULL, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
 }
 
 void CMainWindow::Show( int windowShowMode )
@@ -101,8 +101,8 @@ void CMainWindow::OnSize()
 
 void CMainWindow::OnSizing( WPARAM wParam, RECT* rect )
 {
-	const int heigth = rect->bottom - rect->top;
-	const int width = rect->right - rect->left;
+	const int heigth = max( 160, min( 320, rect->bottom - rect->top ) );
+	const int width = max( 160, min( 320, rect->right - rect->left ) );
 	const int size = min( heigth, width );
 
 	switch( wParam ) {
