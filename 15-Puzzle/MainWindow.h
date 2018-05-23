@@ -7,6 +7,8 @@
 #include <array>
 
 class CMainWindow {
+	friend class CDigitWindow;
+
 public:
 	CMainWindow() = default;
 	~CMainWindow();
@@ -26,6 +28,7 @@ private:
 	HWND windowHandle{};
 	const static int degree = 4;
 	std::array<std::array<CDigitWindow, degree>, degree> digitWindows{};
+	std::array<std::array<int, degree>, degree> digits{};
 
 	static LRESULT __stdcall windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );
 	static CMainWindow* getThis( HWND handle );

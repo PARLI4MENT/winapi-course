@@ -58,9 +58,9 @@ void CMainWindow::OnCreate()
 		for( int j = 0; j < degree; ++j ) {
 			const int left = rectangle.left + j * width;
 			const int top = rectangle.top + i * height;
-			const int digit = ( i * degree + j + 1 ) % ( degree * degree );
 
-			digitWindows[i][j].Create( windowHandle, left, top, width, height, digit );
+			digits[i][j] = ( i * degree + j + 1 ) % ( degree * degree );
+			digitWindows[i][j].Create( windowHandle, left, top, width, height, this, i, j );
 		}
 	}
 }

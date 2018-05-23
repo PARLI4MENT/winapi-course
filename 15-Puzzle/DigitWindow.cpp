@@ -1,4 +1,5 @@
 #include "DigitWindow.h"
+#include "MainWindow.h"
 
 #include <cstdlib>
 #include <string>
@@ -23,10 +24,12 @@ bool CDigitWindow::Register()
 	return RegisterClassEx( &windowClass ) != 0;
 }
 
-bool CDigitWindow::Create( HWND _parentWindowHandle, int left, int top, int width, int heigth, int _digit )
+bool CDigitWindow::Create( HWND _parentWindowHandle, int left, int top, int width, int heigth, CMainWindow* _parent, int _row, int _column )
 {
 	parentWindowHandle = _parentWindowHandle;
-	digit = _digit;
+	parent = _parent;
+	row = _row;
+	column = _column;
 	return CreateWindowEx( 0, L"DigitWindow", L"DigitWindow", WS_CHILD | WS_BORDER,
 		left, top, width, heigth, parentWindowHandle, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
 }
@@ -66,7 +69,7 @@ void CDigitWindow::OnPaint()
 	DeleteObject( backgroundBrush );
 
 	SetBkColor( paintDC, backgroundColor );
-	auto text = std::to_wstring( digit );
+	auto text = std::to_wstring( parent->digits[row][column] );
 	DrawText( paintDC, text.c_str(), -1, &rectangle, DT_CENTER | DT_SINGLELINE | DT_VCENTER );
 
 	EndPaint( windowHandle, &paintStruct );
@@ -74,6 +77,19 @@ void CDigitWindow::OnPaint()
 
 void CDigitWindow::OnLButtonDown()
 {
+	auto focusedWindow = GetFocus();
+	if( focusedWindow != parentWindowHandle && focusedWindow != windowHandle ) {
+		auto focusedThis = getThis( focusedWindow );
+		int focusedRow = focusedThis->row;
+		int focusedColumn = focusedThis->column;
+		int dRow = std::abs( row - focusedRow );
+		int dColumn = std::abs( column - focusedColumn );
+		if( dRow == 1 && dColumn == 0 ) {
+			std::swap( parent->digits[row][column], parent->digits[focusedRow][focusedColumn] );
+		} else if( dRow == 0 && dColumn == 1 ) {
+			std::swap( parent->digits[row][column], parent->digits[focusedRow][focusedColumn] );
+		}
+	}
 	SetFocus( windowHandle );
 	InvalidateRect( parentWindowHandle, NULL, TRUE );
 }
