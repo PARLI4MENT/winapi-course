@@ -69,8 +69,11 @@ void CDigitWindow::OnPaint()
 	DeleteObject( backgroundBrush );
 
 	SetBkColor( paintDC, backgroundColor );
-	auto text = std::to_wstring( parent->digits[row][column] );
-	DrawText( paintDC, text.c_str(), -1, &rectangle, DT_CENTER | DT_SINGLELINE | DT_VCENTER );
+	int digit = parent->digits[row][column];
+	if( digit != 0 ) {
+		auto text = std::to_wstring( digit );
+		DrawText( paintDC, text.c_str(), -1, &rectangle, DT_CENTER | DT_SINGLELINE | DT_VCENTER );
+	}
 
 	EndPaint( windowHandle, &paintStruct );
 };
