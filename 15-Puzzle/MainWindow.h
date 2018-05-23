@@ -30,10 +30,13 @@ private:
 	const static int degree = 4;
 	std::array<std::array<CDigitWindow, degree>, degree> digitWindows{};
 	std::array<std::array<int, degree>, degree> digits{};
+	int blankRow = degree - 1;
+	int blankColumn = degree - 1;
 
 	static LRESULT __stdcall windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );
 	static CMainWindow* getThis( HWND handle );
 	static std::vector<int> getRandomPermutation( int length );
 	static bool isSolvableState( const std::vector<int>& permutation, int degree );
+	static bool isFinishState( const std::vector<int>& permutation );
 	static std::vector<int> getInitialState( int degree );
 };

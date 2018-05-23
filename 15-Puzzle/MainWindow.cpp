@@ -68,6 +68,8 @@ void CMainWindow::OnCreate()
 			digitWindows[i][j].Create( windowHandle, left, top, width, height, this, i, j );
 		}
 	}
+
+	SetFocus( digitWindows[degree - 1][degree - 1].windowHandle );
 }
 
 void CMainWindow::OnNCCreate( const HWND handle )
@@ -230,6 +232,16 @@ bool CMainWindow::isSolvableState( const std::vector<int>& permutation, int degr
 	return ( sum + degree ) % 2 == 0;
 }
 
+bool CMainWindow::isFinishState( const std::vector<int>& permutation )
+{
+	for( int i = 0; i < permutation.size(); ++i ) {
+		if( permutation[i] != i + 1 ) {
+			return false;
+		}
+	}
+	return true;
+}
+
 std::vector<int> CMainWindow::getInitialState( int degree )
 {
 	std::vector<int> permutation{};
@@ -237,7 +249,7 @@ std::vector<int> CMainWindow::getInitialState( int degree )
 
 	do {
 		permutation = getRandomPermutation( degree * degree - 1 );
-	} while( !isSolvableState( permutation, degree ) );
+	} while( !isSolvableState( permutation, degree ) || isFinishState( permutation ) );
 
 	permutation.push_back( 0 );
 

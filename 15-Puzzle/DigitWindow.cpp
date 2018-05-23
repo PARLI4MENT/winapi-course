@@ -77,21 +77,20 @@ void CDigitWindow::OnPaint()
 
 void CDigitWindow::OnLButtonDown()
 {
-	auto focusedWindow = GetFocus();
-	if( focusedWindow != parentWindowHandle && focusedWindow != windowHandle ) {
-		auto focusedThis = getThis( focusedWindow );
-		int focusedRow = focusedThis->row;
-		int focusedColumn = focusedThis->column;
-		int dRow = std::abs( row - focusedRow );
-		int dColumn = std::abs( column - focusedColumn );
-		if( dRow == 1 && dColumn == 0 ) {
-			std::swap( parent->digits[row][column], parent->digits[focusedRow][focusedColumn] );
-		} else if( dRow == 0 && dColumn == 1 ) {
-			std::swap( parent->digits[row][column], parent->digits[focusedRow][focusedColumn] );
-		}
+	int blankRow = parent->blankRow;
+	int blankColumn = parent->blankColumn;
+
+	int rowDifference = std::abs( row - blankRow );
+	int columnDifference = std::abs( column - blankColumn );
+
+	if( rowDifference == 1 && columnDifference == 0 || rowDifference == 0 && columnDifference == 1 ) {
+		std::swap( parent->digits[row][column], parent->digits[blankRow][blankColumn] );
+		parent->blankRow = row;
+		parent->blankColumn = column;
+
+		SetFocus( windowHandle );
+		InvalidateRect( parentWindowHandle, NULL, TRUE );
 	}
-	SetFocus( windowHandle );
-	InvalidateRect( parentWindowHandle, NULL, TRUE );
 }
 
 LRESULT CDigitWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
