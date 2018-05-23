@@ -18,7 +18,7 @@ bool CMainWindow::Register()
 	windowClass.cbSize = sizeof( windowClass );
 	windowClass.lpfnWndProc = windowProc;
 	windowClass.hInstance = GetModuleHandle( NULL );
-	windowClass.hbrBackground = static_cast<HBRUSH>( GetStockObject( WHITE_BRUSH ) );
+	//windowClass.hbrBackground = static_cast<HBRUSH>( GetStockObject( WHITE_BRUSH ) );
 	windowClass.lpszClassName = L"15-Puzzle";
 
 	return RegisterClassEx( &windowClass ) != 0;

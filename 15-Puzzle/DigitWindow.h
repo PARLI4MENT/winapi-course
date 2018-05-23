@@ -12,7 +12,7 @@ public:
 	~CDigitWindow();
 
 	static bool Register();
-	bool Create( HWND parentWinwowHandle, int left, int top, int width, int heigth, int _digit );
+	bool Create( HWND _parentWindowHandle, int left, int top, int width, int heigth, int _digit );
 	void Show( int windowShowMode );
 
 protected:
@@ -24,6 +24,7 @@ protected:
 
 private:
 	HWND windowHandle{};
+	HWND parentWindowHandle{};
 	int digit = 0;
 
 	static LRESULT __stdcall windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );

@@ -23,11 +23,12 @@ bool CDigitWindow::Register()
 	return RegisterClassEx( &windowClass ) != 0;
 }
 
-bool CDigitWindow::Create( HWND parentWinwowHandle, int left, int top, int width, int heigth, int _digit )
+bool CDigitWindow::Create( HWND _parentWindowHandle, int left, int top, int width, int heigth, int _digit )
 {
+	parentWindowHandle = _parentWindowHandle;
 	digit = _digit;
 	return CreateWindowEx( 0, L"DigitWindow", L"DigitWindow", WS_CHILD | WS_BORDER,
-		left, top, width, heigth, parentWinwowHandle, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
+		left, top, width, heigth, parentWindowHandle, NULL, GetModuleHandle( NULL ), static_cast<LPVOID>( this ) ) != NULL;
 }
 
 void CDigitWindow::Show( int windowShowMode )
@@ -53,15 +54,28 @@ void CDigitWindow::OnPaint()
 {
 	PAINTSTRUCT paintStruct{};
 	HDC paintDC = BeginPaint( windowHandle, &paintStruct );
+
 	RECT rectangle{};
 	GetClientRect( windowHandle, &rectangle );
-	DrawTextEx( paintDC, const_cast<LPWSTR>( std::to_wstring( digit ).c_str() ), -1, &rectangle, DT_CENTER | DT_VCENTER | DT_SINGLELINE, NULL );
+
+	bool isFocused = GetFocus() == windowHandle;
+	auto backgroundColor = isFocused ? RGB( 192, 192, 208 ) : RGB( 255, 255, 255 );
+
+	HBRUSH backgroundBrush = CreateSolidBrush( backgroundColor );
+	FillRect( paintDC, &rectangle, backgroundBrush );
+	DeleteObject( backgroundBrush );
+
+	SetBkColor( paintDC, backgroundColor );
+	auto text = std::to_wstring( digit );
+	DrawText( paintDC, text.c_str(), -1, &rectangle, DT_CENTER | DT_SINGLELINE | DT_VCENTER );
+
 	EndPaint( windowHandle, &paintStruct );
 };
 
 void CDigitWindow::OnLButtonDown()
 {
 	SetFocus( windowHandle );
+	InvalidateRect( parentWindowHandle, NULL, TRUE );
 }
 
 LRESULT CDigitWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
