@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <numeric>
+#include <random>
 #include <string>
 
 CMainWindow::~CMainWindow()
@@ -53,13 +55,16 @@ void CMainWindow::OnCreate()
 	const int width = ( rectangle.right - rectangle.left ) / degree;
 	const int height = ( rectangle.bottom - rectangle.top ) / degree;
 
+	auto permutation = getInitialState( degree );
+
 	CDigitWindow::Register();
 	for( int i = 0; i < degree; ++i ) {
 		for( int j = 0; j < degree; ++j ) {
 			const int left = rectangle.left + j * width;
 			const int top = rectangle.top + i * height;
+			const int index = i * degree + j;
 
-			digits[i][j] = ( i * degree + j + 1 ) % ( degree * degree );
+			digits[i][j] = permutation[index];
 			digitWindows[i][j].Create( windowHandle, left, top, width, height, this, i, j );
 		}
 	}
@@ -107,12 +112,20 @@ void CMainWindow::OnSizing( WPARAM wParam, RECT* rect )
 
 	switch( wParam ) {
 		case WMSZ_BOTTOM:
+			rect->bottom = rect->top + width;
+			rect->right = rect->left + heigth;
+			break;
 		case WMSZ_TOP:
+			rect->top = rect->bottom - width;
 			rect->right = rect->left + heigth;
 			break;
 		case WMSZ_LEFT:
+			rect->bottom = rect->top + width;
+			rect->left = rect->right - heigth;
+			break;
 		case WMSZ_RIGHT:
 			rect->bottom = rect->top + width;
+			rect->right = rect->left + heigth;
 			break;
 		case WMSZ_BOTTOMLEFT:
 			rect->bottom = rect->top + size;
@@ -180,4 +193,53 @@ LRESULT CMainWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPARA
 CMainWindow* CMainWindow::getThis( HWND handle )
 {
 	return reinterpret_cast<CMainWindow*>( GetWindowLong( handle, GWLP_USERDATA ) );
+}
+
+std::vector<int> CMainWindow::getRandomPermutation( int length )
+{
+	std::random_device rd;
+	std::uniform_int_distribution<int> dist( 1, length );
+
+	std::vector<int> permutation{};
+
+	for( int i = 0; i < length - 1; ++i ) {
+		int value = 0;
+		do {
+			value = dist( rd );
+		} while( std::find( permutation.begin(), permutation.end(), value ) != permutation.end() );
+		permutation.push_back( value );
+	}
+
+	int sum = std::accumulate( permutation.begin(), permutation.end(), 0 );
+	int totalSum = length * ( length + 1 ) / 2;
+	permutation.push_back( totalSum - sum );
+
+	return permutation;
+}
+
+bool CMainWindow::isSolvableState( const std::vector<int>& permutation, int degree )
+{
+	int sum = 0;
+	for( auto i = 0; i < permutation.size(); ++i ) {
+		for( auto j = i + 1; j < permutation.size(); ++j ) {
+			if( permutation[i] > permutation[j] ) {
+				++sum;
+			}
+		}
+	}
+	return ( sum + degree ) % 2 == 0;
+}
+
+std::vector<int> CMainWindow::getInitialState( int degree )
+{
+	std::vector<int> permutation{};
+	int sum = 0;
+
+	do {
+		permutation = getRandomPermutation( degree * degree - 1 );
+	} while( !isSolvableState( permutation, degree ) );
+
+	permutation.push_back( 0 );
+
+	return permutation;
 }

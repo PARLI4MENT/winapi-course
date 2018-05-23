@@ -5,6 +5,7 @@
 #include "DigitWindow.h"
 
 #include <array>
+#include <vector>
 
 class CMainWindow {
 	friend class CDigitWindow;
@@ -32,4 +33,7 @@ private:
 
 	static LRESULT __stdcall windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam );
 	static CMainWindow* getThis( HWND handle );
+	static std::vector<int> getRandomPermutation( int length );
+	static bool isSolvableState( const std::vector<int>& permutation, int degree );
+	static std::vector<int> getInitialState( int degree );
 };
