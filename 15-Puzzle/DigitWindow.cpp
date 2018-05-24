@@ -18,7 +18,6 @@ bool CDigitWindow::Register()
 	windowClass.cbSize = sizeof( windowClass );
 	windowClass.lpfnWndProc = windowProc;
 	windowClass.hInstance = GetModuleHandle( NULL );
-	windowClass.hbrBackground = static_cast<HBRUSH>( GetStockObject( WHITE_BRUSH ) );
 	windowClass.lpszClassName = L"DigitWindow";
 
 	return RegisterClassEx( &windowClass ) != 0;

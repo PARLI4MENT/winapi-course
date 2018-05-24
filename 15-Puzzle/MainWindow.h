@@ -24,6 +24,7 @@ protected:
 	void OnNCCreate( const HWND handle );
 	void OnSize();
 	void OnSizing( WPARAM wParam, RECT* rect );
+	void OnCommand( WPARAM wParam );
 
 private:
 	HWND windowHandle{};

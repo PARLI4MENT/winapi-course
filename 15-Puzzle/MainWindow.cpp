@@ -1,4 +1,7 @@
 #include "MainWindow.h"
+#include "PuzzleSolver.h"
+
+#include "resource.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -20,8 +23,8 @@ bool CMainWindow::Register()
 	windowClass.cbSize = sizeof( windowClass );
 	windowClass.lpfnWndProc = windowProc;
 	windowClass.hInstance = GetModuleHandle( NULL );
-	//windowClass.hbrBackground = static_cast<HBRUSH>( GetStockObject( WHITE_BRUSH ) );
 	windowClass.lpszClassName = L"15-Puzzle";
+	windowClass.lpszMenuName = MAKEINTRESOURCE( IDR_MENU1 );
 
 	return RegisterClassEx( &windowClass ) != 0;
 }
@@ -148,6 +151,27 @@ void CMainWindow::OnSizing( WPARAM wParam, RECT* rect )
 	}
 }
 
+void CMainWindow::OnCommand( WPARAM wParam )
+{
+	if( HIWORD( wParam ) == 0 && LOWORD( wParam ) == ID_40001 ) {
+		std::vector<int> positions;
+
+		for( auto& row : digits ) {
+			for( auto& value : row ) {
+				positions.push_back( value );
+			}
+		}
+
+		auto hintMove = CPuzzleSolver::GetHint( positions );
+
+		std::wstring hint = L"Попробуйте передвинуть пустышку ";
+		hint += hintMove.RowDifference == -1 ? L"вверх" : hintMove.RowDifference == 1 ? L"вниз" : hintMove.ColumnDifference == -1 ? L"влево" : L"вправо";
+		hint += L"...";
+
+		MessageBoxW( windowHandle, hint.c_str(), L"Подсказка", MB_OK );
+	}
+}
+
 LRESULT CMainWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPARAM lParam )
 {
 	switch( message ) {
@@ -185,6 +209,11 @@ LRESULT CMainWindow::windowProc( HWND handle, UINT message, WPARAM wParam, LPARA
 		{
 			getThis( handle )->OnSizing( wParam, reinterpret_cast<RECT*>( lParam ) );
 			return 0;
+		}
+		case WM_COMMAND:
+		{
+			getThis( handle )->OnCommand( wParam );
+			return DefWindowProc( handle, message, wParam, lParam );
 		}
 		default:
 			return DefWindowProc( handle, message, wParam, lParam );

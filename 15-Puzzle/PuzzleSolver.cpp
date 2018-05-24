@@ -1,7 +1,7 @@
 #include "PuzzleSolver.h"
 
 #include <cmath>
-#include <set>
+#include <unordered_set>
 #include <queue>
 
 CMove::CMove( int rowDifference, int columnDifference ) :
@@ -20,6 +20,25 @@ CPuzzleSolver::CState::CState( CPositions positions, int blankRow, int blankColu
 {
 }
 
+bool CPuzzleSolver::CState::operator==( const CState& other ) const
+{
+	for( int i = 0; i < Positions.size(); ++i ) {
+		if( Positions[i] != other.Positions[i] ) {
+			return false;
+		}
+	}
+	return true;
+}
+
+std::size_t CPuzzleSolver::CStateHasher::operator()( const CState& state ) const
+{
+	std::size_t hash = 0;
+	for( auto& position : state.Positions ) {
+		hash = ( 23 * hash + 19 ) % 18446744073689561299ULL;
+	}
+	return hash;
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 
 const std::array<CMove, 4> CPuzzleSolver::moves{ CMove{ -1, 0 }, CMove{ 0, -1 }, CMove{ 1, 0 }, CMove{ 0, 1 } };
@@ -33,7 +52,7 @@ CPuzzleSolver::CPath CPuzzleSolver::solve( const CPositions& initialPositions )
 {
 	int degree = std::floor( std::sqrt( initialPositions.size() ) + 0.5 );
 
-	std::set<CState> visited{};
+	std::unordered_set<CState, CStateHasher> visited{};
 	std::queue<CState> states{};
 
 	int blankIndex = getBlankIndex( initialPositions );
@@ -78,7 +97,7 @@ CPuzzleSolver::CPath CPuzzleSolver::solve( const CPositions& initialPositions )
 
 int CPuzzleSolver::getBlankIndex( const CPositions& positions )
 {
-	return  std::find( positions.begin(), positions.end(), 0 ) - positions.begin();;
+	return  std::find( positions.begin(), positions.end(), 0 ) - positions.begin();
 }
 
 bool CPuzzleSolver::isFinishPositions( const CPositions& positions )

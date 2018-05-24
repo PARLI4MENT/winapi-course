@@ -26,6 +26,13 @@ class CPuzzleSolver {
 		CPath Path{};
 
 		CState( CPositions positions, int blankRow, int blankColumn, const CPath& path );
+
+		bool operator==( const CState& other ) const;
+	};
+
+	class CStateHasher {
+	public:
+		std::size_t operator()( const CState& other ) const;
 	};
 
 public:
