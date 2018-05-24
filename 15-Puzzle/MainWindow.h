@@ -38,6 +38,6 @@ private:
 	static CMainWindow* getThis( HWND handle );
 	static std::vector<int> getRandomPermutation( int length );
 	static bool isSolvableState( const std::vector<int>& permutation, int degree );
-	static bool isFinishState( const std::vector<int>& permutation );
 	static std::vector<int> getInitialState( int degree );
+	static std::vector<int> getVector( const std::array<std::array<int, degree>, degree>& array );
 };

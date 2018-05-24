@@ -1,5 +1,6 @@
 #include "DigitWindow.h"
 #include "MainWindow.h"
+#include "PuzzleSolver.h"
 
 #include <cstdlib>
 #include <string>
@@ -92,6 +93,10 @@ void CDigitWindow::OnLButtonDown()
 
 		SetFocus( windowHandle );
 		InvalidateRect( parentWindowHandle, NULL, TRUE );
+
+		if( CPuzzleSolver::IsFinishPositions( parent->getVector( parent->digits ), 1 ) ) {
+			MessageBox( NULL, L"Поздравляем с успехом!", L"Вы победили!", MB_OK );
+		}
 	}
 }
 

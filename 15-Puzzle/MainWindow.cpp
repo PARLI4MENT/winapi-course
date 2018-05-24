@@ -154,15 +154,7 @@ void CMainWindow::OnSizing( WPARAM wParam, RECT* rect )
 void CMainWindow::OnCommand( WPARAM wParam )
 {
 	if( HIWORD( wParam ) == 0 && LOWORD( wParam ) == ID_40001 ) {
-		std::vector<int> positions;
-
-		for( auto& row : digits ) {
-			for( auto& value : row ) {
-				positions.push_back( value );
-			}
-		}
-
-		auto hintMove = CPuzzleSolver::GetHint( positions );
+		auto hintMove = CPuzzleSolver::GetHint( getVector( digits ) );
 
 		std::wstring hint = L"Попробуйте передвинуть пустышку ";
 		hint += hintMove.RowDifference == -1 ? L"вверх" : hintMove.RowDifference == 1 ? L"вниз" : hintMove.ColumnDifference == -1 ? L"влево" : L"вправо";
@@ -261,16 +253,6 @@ bool CMainWindow::isSolvableState( const std::vector<int>& permutation, int degr
 	return ( sum + degree ) % 2 == 0;
 }
 
-bool CMainWindow::isFinishState( const std::vector<int>& permutation )
-{
-	for( int i = 0; i < permutation.size(); ++i ) {
-		if( permutation[i] != i + 1 ) {
-			return false;
-		}
-	}
-	return true;
-}
-
 std::vector<int> CMainWindow::getInitialState( int degree )
 {
 	std::vector<int> permutation{};
@@ -278,9 +260,20 @@ std::vector<int> CMainWindow::getInitialState( int degree )
 
 	do {
 		permutation = getRandomPermutation( degree * degree - 1 );
-	} while( !isSolvableState( permutation, degree ) || isFinishState( permutation ) );
+	} while( !isSolvableState( permutation, degree ) || CPuzzleSolver::IsFinishPositions( permutation ) );
 
 	permutation.push_back( 0 );
 
 	return permutation;
+}
+
+std::vector<int> CMainWindow::getVector( const std::array<std::array<int, degree>, degree>& array )
+{
+	std::vector<int> positions{};
+	for( auto& row : array ) {
+		for( auto& cell : row ) {
+			positions.push_back( cell );
+		}
+	}
+	return positions;
 }

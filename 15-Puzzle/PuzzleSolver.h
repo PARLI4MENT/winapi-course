@@ -23,11 +23,14 @@ class CPuzzleSolver {
 		CPositions Positions{};
 		int BlankRow{ -1 };
 		int BlankColumn{ -1 };
-		CPath Path{};
+		std::vector<__int8> MoveIndices{};
+		int Distance{ 0 };
+		int Estimation{ 0 };
 
-		CState( CPositions positions, int blankRow, int blankColumn, const CPath& path );
+		CState( const CPositions& positions, int blankRow, int blankColumn, const std::vector<__int8>& moveIndices, int distance, int estimation );
 
 		bool operator==( const CState& other ) const;
+		bool operator<( const CState& other ) const;
 	};
 
 	class CStateHasher {
@@ -37,11 +40,12 @@ class CPuzzleSolver {
 
 public:
 	static CMove GetHint( const CPositions& initialPositions );
+	static bool IsFinishPositions( const CPositions& positions, int tail = 0 );
 
 private:
 	static const std::array<CMove, 4> moves;
 	
-	static CPath solve( const CPositions& initialPositions );
+	static std::vector<__int8> solve( const CPositions& initialPositions );
 	static int getBlankIndex( const CPositions& positions );
-	static bool isFinishPositions( const CPositions& positions );
+	static int findEstimation( const CPositions& permutation, int degree );
 };
