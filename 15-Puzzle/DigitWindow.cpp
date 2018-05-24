@@ -62,7 +62,7 @@ void CDigitWindow::OnPaint()
 	GetClientRect( windowHandle, &rectangle );
 
 	bool isFocused = GetFocus() == windowHandle;
-	auto backgroundColor = isFocused ? RGB( 192, 192, 208 ) : RGB( 255, 255, 255 );
+	auto backgroundColor = isFocused ? RGB( 192, 192, 208 ) : RGB( 192, 192, 192 );
 
 	HBRUSH backgroundBrush = CreateSolidBrush( backgroundColor );
 	FillRect( paintDC, &rectangle, backgroundBrush );
