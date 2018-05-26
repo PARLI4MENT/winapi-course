@@ -140,7 +140,7 @@ int CPuzzleSolver::findEstimation( const CPositions& permutation, int degree )
 		int expectedColumn = value != 0 ? value % degree : degree - 1;
 		int row = i / degree;
 		int column = i % degree;
-		sum += std::abs( row - expectedRow + std::abs( column - expectedColumn ) );
+		sum += std::abs( row - expectedRow ) + std::abs( column - expectedColumn );
 	}
 	return sum;
 }
